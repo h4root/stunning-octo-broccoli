@@ -1,0 +1,451 @@
+import SwiftUI
+
+enum Fmt {
+    static func g(_ value: Double) -> String {
+        if value >= 100 { return String(format: "%.0f", value) }
+        return String(format: "%.1f", value)
+    }
+
+    static func kcal(_ value: Double) -> String {
+        String(format: "%.0f", value)
+    }
+}
+
+enum MacroColor {
+    static let kcal = Theme.accentPink
+    static let protein = Theme.blue
+    static let fat = Theme.amber
+    static let carbs = Theme.green
+}
+
+struct ProgressRing: View {
+    var progress: Double
+    var color: Color
+    var lineWidth: CGFloat = 10
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(Color.white.opacity(0.08), lineWidth: lineWidth)
+            Circle()
+                .trim(from: 0, to: min(progress, 1))
+                .stroke(color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+            if progress > 1 {
+                Circle()
+                    .trim(from: 0, to: min(progress - 1, 1))
+                    .stroke(color.opacity(0.45),
+                            style: StrokeStyle(lineWidth: lineWidth * 0.5, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+            }
+        }
+        .animation(.easeOut(duration: 0.4), value: progress)
+    }
+}
+
+struct CalorieSummaryRing: View {
+    var consumed: Double
+    var goal: Double
+
+    private var progress: Double { goal > 0 ? consumed / goal : 0 }
+    private var remaining: Double { max(goal - consumed, 0) }
+    private var shown: Double { min(progress, 1) }
+
+    var body: some View {
+        ZStack {
+
+            Color.clear
+                .frame(width: 186, height: 186)
+                .liquidCircle()
+
+            Circle()
+                .stroke(Color.white.opacity(0.07), lineWidth: 16)
+                .padding(14)
+            Circle()
+                .trim(from: 0, to: shown)
+                .stroke(Theme.accentGradient,
+                        style: StrokeStyle(lineWidth: 16, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+                .shadow(color: Theme.accentPink.opacity(0.5), radius: 8)
+                .padding(14)
+
+            VStack(spacing: 2) {
+                Text(Fmt.kcal(remaining))
+                    .font(.system(size: 40, weight: .bold, design: .rounded))
+                    .foregroundStyle(Theme.textPrimary)
+                    .contentTransition(.numericText())
+                Text("ккал осталось")
+                    .font(.caption)
+                    .foregroundStyle(Theme.textSecondary)
+                Text("\(Fmt.kcal(consumed)) / \(Fmt.kcal(goal))")
+                    .font(.caption2)
+                    .foregroundStyle(Theme.textTertiary)
+            }
+        }
+        .frame(width: 186, height: 186)
+    }
+}
+
+struct MacroColumn: View {
+    var title: String
+    var consumed: Double
+    var goal: Double
+    var color: Color
+
+    private var progress: Double { goal > 0 ? consumed / goal : 0 }
+
+    var body: some View {
+        VStack(spacing: 8) {
+            ZStack {
+
+                Color.clear
+                    .frame(width: 66, height: 66)
+                    .liquidCircle()
+                ProgressRing(progress: progress, color: color, lineWidth: 7)
+                    .padding(7)
+                Text(Fmt.g(consumed))
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .foregroundStyle(Theme.textPrimary)
+                    .contentTransition(.numericText())
+            }
+            .frame(width: 66, height: 66)
+
+            Text(title)
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(Theme.textSecondary)
+            Text("\(Fmt.g(consumed)) / \(Fmt.g(goal)) г")
+                .font(.caption2)
+                .foregroundStyle(Theme.textTertiary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
+struct GramChip: View {
+    var grams: Double
+    var isSelected: Bool
+    var action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text("\(Fmt.kcal(grams)) г")
+                .font(.subheadline.weight(.medium))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 9)
+                .foregroundStyle(isSelected ? Color.white : Theme.textSecondary)
+                .liquidCapsule(tint: isSelected ? Theme.accentPink : nil)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+struct BigMetricRing: View {
+    var title: String
+    var valueText: String
+    var unit: String
+    var caption: String
+    var progress: Double
+    var color: Color
+
+    var body: some View {
+        ZStack {
+
+            Circle()
+                .fill(color)
+                .frame(width: 220, height: 220)
+                .blur(radius: 90)
+                .opacity(0.45)
+
+            Circle()
+                .stroke(Color.white.opacity(0.08), lineWidth: 22)
+            Circle()
+                .trim(from: 0, to: min(progress, 1))
+                .stroke(
+                    LinearGradient(colors: [color.opacity(0.7), color],
+                                   startPoint: .topLeading, endPoint: .bottomTrailing),
+                    style: StrokeStyle(lineWidth: 22, lineCap: .round)
+                )
+                .rotationEffect(.degrees(-90))
+                .shadow(color: color.opacity(0.6), radius: 12)
+            if progress > 1 {
+                Circle()
+                    .trim(from: 0, to: min(progress - 1, 1))
+                    .stroke(color.opacity(0.5),
+                            style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+            }
+
+            VStack(spacing: 4) {
+                Text(title.uppercased())
+                    .font(.caption.weight(.semibold))
+                    .tracking(1.5)
+                    .foregroundStyle(color)
+                Text(valueText)
+                    .font(.system(size: 56, weight: .bold, design: .rounded))
+                    .foregroundStyle(Theme.textPrimary)
+                    .contentTransition(.numericText())
+                Text(unit)
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.textSecondary)
+                Text(caption)
+                    .font(.caption2)
+                    .foregroundStyle(Theme.textTertiary)
+                    .padding(.top, 2)
+            }
+        }
+        .frame(width: 280, height: 280)
+    }
+}
+
+struct SemiCircleGauge: View {
+    var consumed: Double
+    var goal: Double
+    var lineWidth: CGFloat = 18
+
+    private var progress: Double { goal > 0 ? min(consumed / goal, 1) : 0 }
+    private var remaining: Double { max(goal - consumed, 0) }
+
+    var body: some View {
+        ZStack {
+
+            ZStack {
+                Circle()
+                    .trim(from: 0, to: 0.5)
+                    .stroke(Color.white.opacity(0.08),
+                            style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                    .rotationEffect(.degrees(180))
+
+                Circle()
+                    .trim(from: 0, to: 0.5 * progress)
+                    .stroke(Theme.accentGradient,
+                            style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                    .rotationEffect(.degrees(180))
+                    .shadow(color: Theme.accentPink.opacity(0.45), radius: 8)
+            }
+            .padding(lineWidth / 2 + 2)
+
+            VStack(spacing: 3) {
+                Image(systemName: "flame.fill")
+                    .font(.system(size: 28))
+                    .foregroundStyle(Theme.accentPink)
+                Text(Fmt.kcal(remaining))
+                    .font(.system(size: 40, weight: .bold, design: .rounded))
+                    .foregroundStyle(Theme.textPrimary)
+                    .contentTransition(.numericText())
+                Text("осталось, ккал")
+                    .font(.caption)
+                    .foregroundStyle(Theme.textSecondary)
+            }
+            .multilineTextAlignment(.center)
+            .offset(y: -16)
+        }
+        .frame(width: 240, height: 240)
+        .frame(height: 154, alignment: .top)
+        .clipped()
+    }
+}
+
+struct MacroBar: View {
+    var icon: String
+    var title: String
+    var consumed: Double
+    var goal: Double
+    var color: Color
+
+    private var progress: Double { goal > 0 ? min(consumed / goal, 1) : 0 }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            HStack(spacing: 5) {
+                Image(systemName: icon)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(color)
+                Text(title)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(Theme.textPrimary)
+            }
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Color.white.opacity(0.10))
+                    Capsule().fill(color)
+                        .frame(width: max(6, geo.size.width * progress))
+                }
+            }
+            .frame(height: 6)
+
+            Text("\(Fmt.g(consumed))/\(Fmt.g(goal)) г")
+                .font(.caption2)
+                .foregroundStyle(Theme.textSecondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+struct MacroBarWide: View {
+    var icon: String
+    var title: String
+    var consumed: Double
+    var goal: Double
+    var color: Color
+
+    private var progress: Double { goal > 0 ? min(consumed / goal, 1) : 0 }
+
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(color)
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Text("\(Fmt.g(consumed)) / \(Fmt.g(goal)) г")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.textSecondary)
+                    .monospacedDigit()
+            }
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Color.white.opacity(0.10))
+                    Capsule()
+                        .fill(LinearGradient(colors: [color.opacity(0.7), color],
+                                             startPoint: .leading, endPoint: .trailing))
+                        .frame(width: max(8, geo.size.width * progress))
+                }
+            }
+            .frame(height: 9)
+        }
+    }
+}
+
+struct DateStrip: View {
+    @Binding var selected: Date
+    private let cal = Calendar.current
+
+    private var days: [Date] {
+        let today = cal.startOfDay(for: Date())
+        return (0..<7).reversed().compactMap { cal.date(byAdding: .day, value: -$0, to: today) }
+    }
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(days, id: \.self) { day in
+                dayCell(day)
+            }
+        }
+    }
+
+    private func dayCell(_ day: Date) -> some View {
+        let isSelected = cal.isDate(day, inSameDayAs: selected)
+        return Button {
+            selected = day
+        } label: {
+            VStack(spacing: 4) {
+                Text(dayNum(day))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(isSelected ? Color.black : Theme.textPrimary)
+                Text(weekday(day))
+                    .font(.caption2)
+                    .foregroundStyle(isSelected ? Color.black.opacity(0.7) : Theme.textSecondary)
+            }
+            .frame(width: 38, height: 52)
+            .background {
+                if isSelected {
+                    Capsule().fill(Theme.accentPink)
+                }
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func dayNum(_ d: Date) -> String { "\(cal.component(.day, from: d))" }
+
+    private func weekday(_ d: Date) -> String {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "ru_RU")
+        f.dateFormat = "EE"
+        return f.string(from: d).capitalized
+    }
+}
+
+struct MealCardRow: View {
+    let entry: FoodEntry
+
+    var body: some View {
+        HStack(spacing: 12) {
+
+            ZStack {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(MacroColor.kcal.opacity(0.15))
+                Image(systemName: entry.meal.systemImage)
+                    .font(.system(size: 22))
+                    .foregroundStyle(MacroColor.kcal)
+            }
+            .frame(width: 56, height: 56)
+
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text(entry.name)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Theme.textPrimary)
+                        .lineLimit(1)
+                    Spacer()
+                    Text(timeString)
+                        .font(.caption2)
+                        .foregroundStyle(Theme.textTertiary)
+                }
+                HStack(spacing: 6) {
+                    pill("\(Fmt.kcal(entry.kcal))", "flame.fill", MacroColor.kcal)
+                    pill("\(Fmt.g(entry.protein))", "fish.fill", MacroColor.protein)
+                    pill("\(Fmt.g(entry.fat))", "drop.fill", MacroColor.fat)
+                    pill("\(Fmt.g(entry.carbs))", "leaf.fill", MacroColor.carbs)
+                }
+            }
+        }
+        .padding(12)
+        .glassCard(cornerRadius: 18)
+    }
+
+    private var timeString: String {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "ru_RU")
+        f.dateFormat = "HH:mm"
+        return f.string(from: entry.createdAt)
+    }
+
+    private func pill(_ text: String, _ icon: String, _ color: Color) -> some View {
+        HStack(spacing: 3) {
+            Image(systemName: icon).font(.system(size: 9))
+            Text(text).font(.caption2.weight(.medium))
+        }
+        .foregroundStyle(color)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(color.opacity(0.14), in: Capsule())
+    }
+}
+
+struct StreakIndicator: View {
+    var days: Int
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "flame.fill")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundStyle(days > 0 ? Theme.amber : Theme.textTertiary)
+            Text("\(days)")
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(Theme.textPrimary)
+                .monospacedDigit()
+            Text(days == 1 ? "день" : "дней")
+                .font(.caption)
+                .foregroundStyle(Theme.textSecondary)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 9)
+        .background(.ultraThinMaterial, in: Capsule())
+        .overlay(Capsule().stroke(Theme.glassStroke, lineWidth: 1))
+    }
+}
