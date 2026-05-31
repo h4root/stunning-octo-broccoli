@@ -63,24 +63,26 @@ private struct DashboardDayContent: View {
 
     private var goalRow: some View {
         HStack {
-            HStack(spacing: 4) {
-                Text("Цель:")
-                    .font(.subheadline)
-                    .foregroundStyle(Theme.textSecondary)
-                Text(autoGoals ? "Авто" : "\(Fmt.kcal(goalKcal)) ккал")
-                    .font(.subheadline.weight(.bold))
-                    .foregroundStyle(Theme.accentPink)
-                    .monospacedDigit()
-                Image(systemName: "chevron.up.chevron.down")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(Theme.textTertiary)
+            Button { onEditGoal() } label: {
+                HStack(spacing: 4) {
+                    Text("Цель:")
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.textSecondary)
+                    Text(autoGoals ? "Авто" : "\(Fmt.kcal(goalKcal)) ккал")
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(Theme.accentPink)
+                        .monospacedDigit()
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(Theme.textTertiary)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(.ultraThinMaterial, in: Capsule())
+                .overlay(Capsule().stroke(Theme.glassStroke, lineWidth: 1))
+                .contentShape(Capsule())
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(.ultraThinMaterial, in: Capsule())
-            .overlay(Capsule().stroke(Theme.glassStroke, lineWidth: 1))
-            .contentShape(Capsule())
-            .onTapGesture { onEditGoal() }
+            .buttonStyle(.pressable)
 
             Spacer()
 
@@ -124,16 +126,17 @@ private struct DashboardDayContent: View {
                 .glassCard(cornerRadius: 18)
             } else {
                 ForEach(entries) { entry in
-                    MealCardRow(entry: entry)
-                        .contentShape(Rectangle())
-                        .onTapGesture { editingEntry = entry }
-                        .contextMenu {
-                            Button { editingEntry = entry } label: { Label("Изменить", systemImage: "pencil") }
-                            Button(role: .destructive) {
-                                withAnimation { context.delete(entry) }
-                            } label: { Label("Удалить", systemImage: "trash") }
-                        }
-                        .transition(.move(edge: .top).combined(with: .opacity))
+                    Button { editingEntry = entry } label: {
+                        MealCardRow(entry: entry)
+                    }
+                    .buttonStyle(.pressable)
+                    .contextMenu {
+                        Button { editingEntry = entry } label: { Label("Изменить", systemImage: "pencil") }
+                        Button(role: .destructive) {
+                            withAnimation { context.delete(entry) }
+                        } label: { Label("Удалить", systemImage: "trash") }
+                    }
+                    .transition(.move(edge: .top).combined(with: .opacity))
                 }
             }
         }

@@ -27,8 +27,10 @@ struct ProfileView: View {
     @AppStorage("goal.protein") private var goalProtein = GoalsDefaults.protein
     @AppStorage("goal.fat") private var goalFat = GoalsDefaults.fat
     @AppStorage("goal.carbs") private var goalCarbs = GoalsDefaults.carbs
+    @AppStorage("profile.weightFromHealth") private var weightImported = false
 
     @State private var editing: ProfileField?
+    @State private var importingWeight = false
 
     private var sex: Sex { Sex(rawValue: sexRaw) ?? .male }
     private var activity: ActivityLevel { ActivityLevel(rawValue: activityRaw) ?? .moderate }
@@ -48,6 +50,7 @@ struct ProfileView: View {
                 activitySection
                 goalSection
                 targetsSection
+                healthBottomSection
                 resetSection
             }
             .darkForm()
@@ -92,21 +95,47 @@ struct ProfileView: View {
             pickerRow(.height, value: "\(Fmt.kcal(heightCm)) см")
             pickerRow(.weight, value: "\(Fmt.kcal(weightKg)) кг")
 
-            if HealthService.shared.isAvailable {
-                Button {
-                    Task {
-                        let h = HealthService.shared
-                        if !h.didRequest { await h.requestAuthorization() }
-                        if let w = await h.fetchLatestWeight() { weightKg = w.rounded() }
-                    }
-                } label: {
-                    Label("Взять вес из Apple Health", systemImage: "heart.fill")
-                        .font(.subheadline)
-                        .foregroundStyle(Theme.accentPink)
-                }
+            if HealthService.shared.isAvailable && !weightImported {
+                healthWeightButton
             }
         } header: { sectionHeader("Параметры тела") }
         .listRowBackground(rowBackground)
+    }
+
+    private var healthWeightButton: some View {
+        Button {
+            importWeight()
+        } label: {
+            HStack(spacing: 8) {
+                if importingWeight {
+                    ProgressView().tint(Theme.accentPink)
+                    Text("Загрузка из Apple Health…")
+                        .foregroundStyle(Theme.textSecondary)
+                } else {
+                    Text(weightImported ? "Обновить вес из Apple Health" : "Взять вес из Apple Health")
+                        .foregroundStyle(Theme.accentPink)
+                }
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.pressable)
+        .disabled(importingWeight)
+    }
+
+    private func importWeight() {
+        importingWeight = true
+        Task {
+            let h = HealthService.shared
+            await h.requestWeightAuthorization()
+            let w = await h.fetchLatestWeight()
+            importingWeight = false
+            if let w {
+                weightKg = w.rounded()
+                withAnimation(.spring(response: 0.45, dampingFraction: 0.85)) {
+                    weightImported = true
+                }
+            }
+        }
     }
 
     private func pickerRow(_ field: ProfileField, value: String) -> some View {
@@ -123,7 +152,7 @@ struct ProfileView: View {
             }
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
     }
 
     private var activitySection: some View {
@@ -178,6 +207,16 @@ struct ProfileView: View {
         .listRowBackground(rowBackground)
     }
 
+    @ViewBuilder
+    private var healthBottomSection: some View {
+        if HealthService.shared.isAvailable && weightImported {
+            Section {
+                healthWeightButton
+            }
+            .listRowBackground(rowBackground)
+        }
+    }
+
     private var resetSection: some View {
         Section {
             Button(role: .destructive) {
@@ -191,6 +230,7 @@ struct ProfileView: View {
                     .frame(maxWidth: .infinity)
                     .foregroundStyle(.red)
             }
+            .buttonStyle(.pressable)
         }
         .listRowBackground(rowBackground)
     }

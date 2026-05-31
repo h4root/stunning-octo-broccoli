@@ -34,6 +34,11 @@ final class HealthService: ObservableObject {
         await refresh()
     }
 
+    func requestWeightAuthorization() async {
+        guard isAvailable, let mass = HKObjectType.quantityType(forIdentifier: .bodyMass) else { return }
+        try? await store.requestAuthorization(toShare: [], read: [mass])
+    }
+
     func refresh() async {
         guard isAvailable else { return }
         isLoading = true

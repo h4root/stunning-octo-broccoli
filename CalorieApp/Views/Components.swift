@@ -345,7 +345,7 @@ struct DateStrip: View {
             }
             .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
     }
 
     private func dayNum(_ d: Date) -> String { "\(cal.component(.day, from: d))" }

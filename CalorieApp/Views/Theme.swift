@@ -45,6 +45,22 @@ enum Theme {
     )
 }
 
+struct PressableButtonStyle: ButtonStyle {
+    var scale: CGFloat = 0.96
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? scale : 1)
+            .opacity(configuration.isPressed ? 0.55 : 1)
+            .animation(.spring(response: 0.28, dampingFraction: 0.65), value: configuration.isPressed)
+            .hoverEffect(.highlight)
+    }
+}
+
+extension ButtonStyle where Self == PressableButtonStyle {
+    static var pressable: PressableButtonStyle { PressableButtonStyle() }
+}
+
 struct AppBackground: View {
     var body: some View {
         ZStack {
