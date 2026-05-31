@@ -224,6 +224,7 @@ struct SemiCircleGauge: View {
         .frame(width: 240, height: 240)
         .frame(height: 154, alignment: .top)
         .clipped()
+        .animation(.easeOut(duration: 0.55), value: consumed)
     }
 }
 
@@ -258,8 +259,10 @@ struct MacroBar: View {
             Text("\(Fmt.g(consumed))/\(Fmt.g(goal)) г")
                 .font(.caption2)
                 .foregroundStyle(Theme.textSecondary)
+                .contentTransition(.numericText())
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .animation(.easeOut(duration: 0.55), value: consumed)
     }
 }
 
@@ -286,6 +289,7 @@ struct MacroBarWide: View {
                     .font(.subheadline)
                     .foregroundStyle(Theme.textSecondary)
                     .monospacedDigit()
+                    .contentTransition(.numericText())
             }
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
@@ -298,11 +302,13 @@ struct MacroBarWide: View {
             }
             .frame(height: 9)
         }
+        .animation(.easeOut(duration: 0.55), value: consumed)
     }
 }
 
 struct DateStrip: View {
     @Binding var selected: Date
+    @Namespace private var ns
     private let cal = Calendar.current
 
     private var days: [Date] {
@@ -321,7 +327,7 @@ struct DateStrip: View {
     private func dayCell(_ day: Date) -> some View {
         let isSelected = cal.isDate(day, inSameDayAs: selected)
         return Button {
-            selected = day
+            withAnimation(.snappy(duration: 0.3)) { selected = day }
         } label: {
             VStack(spacing: 4) {
                 Text(dayNum(day))
@@ -335,6 +341,7 @@ struct DateStrip: View {
             .background {
                 if isSelected {
                     Capsule().fill(Theme.accentPink)
+                        .matchedGeometryEffect(id: "daySelection", in: ns)
                 }
             }
             .frame(maxWidth: .infinity)

@@ -8,13 +8,16 @@ struct DashboardView: View {
     var body: some View {
         ZStack {
             AppBackground()
-            VStack(spacing: 0) {
-                DateStrip(selected: $selectedDay)
-                    .padding(.horizontal, 16)
-                    .padding(.top, 4)
-                    .padding(.bottom, 8)
-                DashboardDayContent(day: selectedDay, onEditGoal: onEditGoal)
+            ScrollView {
+                VStack(spacing: 0) {
+                    DateStrip(selected: $selectedDay)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 4)
+                        .padding(.bottom, 8)
+                    DashboardDayContent(day: selectedDay, onEditGoal: onEditGoal)
+                }
             }
+            .scrollIndicators(.hidden)
         }
     }
 }
@@ -47,17 +50,14 @@ private struct DashboardDayContent: View {
     private var totals: DayTotals { DayTotals(entries: entries) }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 18) {
-                goalRow
-                summaryCard
-                mealsSection
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 6)
-            .padding(.bottom, 130)
+        VStack(spacing: 18) {
+            goalRow
+            summaryCard
+            mealsSection
         }
-        .scrollIndicators(.hidden)
+        .padding(.horizontal, 20)
+        .padding(.top, 6)
+        .padding(.bottom, 130)
         .sheet(item: $editingEntry) { EditEntryView(entry: $0) }
     }
 
@@ -133,9 +133,11 @@ private struct DashboardDayContent: View {
                                 withAnimation { context.delete(entry) }
                             } label: { Label("Удалить", systemImage: "trash") }
                         }
+                        .transition(.move(edge: .top).combined(with: .opacity))
                 }
             }
         }
+        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: entries.count)
     }
 
     private var isToday: Bool { Calendar.current.isDateInToday(day) }
