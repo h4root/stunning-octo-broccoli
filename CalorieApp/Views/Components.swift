@@ -222,8 +222,7 @@ struct SemiCircleGauge: View {
             .offset(y: -16)
         }
         .frame(width: 240, height: 240)
-        .frame(height: 154, alignment: .top)
-        .clipped()
+        .padding(.bottom, -86)
         .animation(.easeOut(duration: 0.55), value: consumed)
     }
 }
