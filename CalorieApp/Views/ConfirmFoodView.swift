@@ -49,6 +49,61 @@ extension View {
     func darkForm() -> some View { modifier(DarkFormBackground()) }
 }
 
+struct GramsRow: View {
+    @Binding var grams: Double
+    @State private var show = false
+
+    var body: some View {
+        Button { show = true } label: {
+            HStack {
+                Text("Количество").foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Text("\(Fmt.kcal(grams)) г")
+                    .foregroundStyle(Theme.accentPink)
+                    .fontWeight(.semibold)
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Theme.accentPink)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .sheet(isPresented: $show) { GramsPickerSheet(grams: $grams) }
+    }
+}
+
+private struct GramsPickerSheet: View {
+    @Binding var grams: Double
+    @Environment(\.dismiss) private var dismiss
+
+    private var maxGrams: Int { max(1000, Int(grams.rounded())) }
+
+    var body: some View {
+        NavigationStack {
+            Picker("", selection: Binding(
+                get: { min(max(Int(grams.rounded()), 1), maxGrams) },
+                set: { grams = Double($0) }
+            )) {
+                ForEach(1...maxGrams, id: \.self) { Text("\($0) г").tag($0) }
+            }
+            .pickerStyle(.wheel)
+            .labelsHidden()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background { AppBackground() }
+            .navigationTitle("Количество")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Готово") { dismiss() }.fontWeight(.semibold)
+                }
+            }
+        }
+        .presentationDetents([.height(300)])
+        .presentationBackground(.ultraThinMaterial)
+        .preferredColorScheme(.dark)
+    }
+}
+
 struct ConfirmFoodView: View {
     let info: FoodInfo
     var initialMeal: Meal = Meal.suggestedForNow()
@@ -59,7 +114,6 @@ struct ConfirmFoodView: View {
 
     @State private var grams: Double
     @State private var meal: Meal
-    @State private var gramsText: String
 
     init(info: FoodInfo, initialMeal: Meal = Meal.suggestedForNow(), day: Date = Date()) {
         self.info = info
@@ -67,10 +121,7 @@ struct ConfirmFoodView: View {
         self.day = day
         _grams = State(initialValue: info.defaultGrams)
         _meal = State(initialValue: initialMeal)
-        _gramsText = State(initialValue: Fmt.kcal(info.defaultGrams))
     }
-
-    private let presets: [Double] = [30, 50, 100, 150, 200, 250]
 
     var body: some View {
         NavigationStack {
@@ -97,24 +148,7 @@ struct ConfirmFoodView: View {
                 .listRowBackground(Theme.glassFill)
 
                 Section {
-                    HStack {
-                        TextField("Граммы", text: $gramsText)
-                            .keyboardType(.decimalPad)
-                            .onChange(of: gramsText) { _, v in
-                                grams = Double(v.replacingOccurrences(of: ",", with: ".")) ?? 0
-                            }
-                        Text("г").foregroundStyle(Theme.textSecondary)
-                    }
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(presets, id: \.self) { p in
-                                GramChip(grams: p, isSelected: abs(grams - p) < 0.5) {
-                                    grams = p; gramsText = Fmt.kcal(p)
-                                }
-                            }
-                        }
-                        .padding(.vertical, 2)
-                    }
+                    GramsRow(grams: $grams)
                 } header: { sectionHeader("Количество") }
                 .listRowBackground(Theme.glassFill)
 
@@ -191,9 +225,6 @@ struct EditEntryView: View {
     @Bindable var entry: FoodEntry
     @Environment(\.dismiss) private var dismiss
 
-    @State private var gramsText: String = ""
-    private let presets: [Double] = [30, 50, 100, 150, 200, 250]
-
     private var info: FoodInfo {
         FoodInfo(name: entry.name, brand: entry.brand, barcode: entry.barcode,
                  kcalPer100: entry.kcalPer100, proteinPer100: entry.proteinPer100,
@@ -220,23 +251,7 @@ struct EditEntryView: View {
                 .listRowBackground(Theme.glassFill)
 
                 Section {
-                    HStack {
-                        TextField("Граммы", text: $gramsText)
-                            .keyboardType(.decimalPad)
-                            .onChange(of: gramsText) { _, v in
-                                entry.grams = Double(v.replacingOccurrences(of: ",", with: ".")) ?? 0
-                            }
-                        Text("г").foregroundStyle(Theme.textSecondary)
-                    }
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(presets, id: \.self) { p in
-                                GramChip(grams: p, isSelected: abs(entry.grams - p) < 0.5) {
-                                    entry.grams = p; gramsText = Fmt.kcal(p)
-                                }
-                            }
-                        }
-                    }
+                    GramsRow(grams: $entry.grams)
                 } header: { sectionHeader("Количество") }
                 .listRowBackground(Theme.glassFill)
 
@@ -254,7 +269,6 @@ struct EditEntryView: View {
                     Button("Готово") { dismiss() }.fontWeight(.semibold)
                 }
             }
-            .onAppear { gramsText = Fmt.kcal(entry.grams) }
         }
     }
 }

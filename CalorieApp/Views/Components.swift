@@ -121,24 +121,6 @@ struct MacroColumn: View {
     }
 }
 
-struct GramChip: View {
-    var grams: Double
-    var isSelected: Bool
-    var action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Text("\(Fmt.kcal(grams)) г")
-                .font(.subheadline.weight(.medium))
-                .padding(.horizontal, 14)
-                .padding(.vertical, 9)
-                .foregroundStyle(isSelected ? Color.white : Theme.textSecondary)
-                .liquidCapsule(tint: isSelected ? Theme.accentPink : nil)
-        }
-        .buttonStyle(.plain)
-    }
-}
-
 struct BigMetricRing: View {
     var title: String
     var valueText: String
