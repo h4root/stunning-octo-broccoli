@@ -5,42 +5,57 @@ struct DashboardView: View {
     var onEditGoal: () -> Void = {}
     @AppStorage("dashboard.pageCount") private var pageCount = 1
     @AppStorage("dashboard.page") private var storedPage = 0
-    @State private var page = 0
+    @AppStorage("dashboard.goHome") private var goHome = 0
+    @State private var scrollID: Int? = 0
     @State private var selectedDay: Date = Calendar.current.startOfDay(for: Date())
+
+    private var pageBinding: Binding<Int> {
+        Binding(get: { scrollID ?? 0 }, set: { scrollID = $0 })
+    }
 
     var body: some View {
         ZStack(alignment: .bottom) {
             AppBackground()
-            TabView(selection: $page) {
-                ScrollView {
-                    VStack(spacing: 0) {
-                        DateStrip(selected: $selectedDay)
-                            .padding(.horizontal, 16)
-                            .padding(.top, 4)
-                            .padding(.bottom, 8)
-                        DashboardDayContent(day: selectedDay, onEditGoal: onEditGoal)
+
+            ScrollView(.horizontal) {
+                LazyHStack(spacing: 0) {
+                    page0
+                        .containerRelativeFrame(.horizontal)
+                        .id(0)
+                    ForEach(Array(1..<max(pageCount, 1)), id: \.self) { i in
+                        ExtraDashboardPage(index: i)
+                            .containerRelativeFrame(.horizontal)
+                            .id(i)
                     }
                 }
-                .scrollIndicators(.hidden)
-                .tag(0)
-
-                ForEach(Array(1..<max(pageCount, 1)), id: \.self) { i in
-                    ExtraDashboardPage(index: i).tag(i)
-                }
+                .scrollTargetLayout()
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
+            .scrollTargetBehavior(.paging)
+            .scrollPosition(id: $scrollID)
+            .scrollIndicators(.hidden)
 
-            if pageCount > 1 || pageCount < 3 {
-                DashboardPageDots(page: $page, pageCount: $pageCount)
-                    .padding(.bottom, 10)
+            DashboardPageDots(page: pageBinding, pageCount: $pageCount)
+                .padding(.bottom, 10)
+        }
+        .onAppear { scrollID = min(storedPage, max(pageCount - 1, 0)) }
+        .onChange(of: scrollID) { _, p in if let p { storedPage = p } }
+        .onChange(of: goHome) { _, _ in
+            if (scrollID ?? 0) != 0 { scrollID = 0 }
+        }
+        .onChange(of: pageCount) { _, c in if (scrollID ?? 0) > c - 1 { scrollID = max(c - 1, 0) } }
+    }
+
+    private var page0: some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                DateStrip(selected: $selectedDay)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 4)
+                    .padding(.bottom, 8)
+                DashboardDayContent(day: selectedDay, onEditGoal: onEditGoal)
             }
         }
-        .onAppear { page = min(storedPage, max(pageCount - 1, 0)) }
-        .onChange(of: page) { _, p in storedPage = p }
-        .onChange(of: storedPage) { _, p in
-            if p != page { withAnimation(.easeInOut(duration: 0.3)) { page = min(p, max(pageCount - 1, 0)) } }
-        }
-        .onChange(of: pageCount) { _, c in if page > c - 1 { withAnimation { page = max(c - 1, 0) } } }
+        .scrollIndicators(.hidden)
     }
 }
 
@@ -54,17 +69,15 @@ private struct DashboardPageDots: View {
                 Circle()
                     .fill(i == page ? Theme.accentPink : Color.white.opacity(0.28))
                     .frame(width: 7, height: 7)
-                    .onTapGesture { withAnimation { page = i } }
+                    .onTapGesture { page = i }
                     .onLongPressGesture {
                         if i == pageCount - 1 && i > 0 { removeLast() }
                     }
             }
             if pageCount < 3 {
                 Button {
-                    withAnimation {
-                        pageCount += 1
-                        page = pageCount - 1
-                    }
+                    pageCount += 1
+                    page = pageCount - 1
                 } label: {
                     Image(systemName: "plus")
                         .font(.system(size: 10, weight: .bold))
@@ -84,10 +97,8 @@ private struct DashboardPageDots: View {
     private func removeLast() {
         guard pageCount > 1 else { return }
         UserDefaults.standard.removeObject(forKey: bentoKey(pageCount - 1))
-        withAnimation {
-            pageCount -= 1
-            if page > pageCount - 1 { page = pageCount - 1 }
-        }
+        pageCount -= 1
+        if page > pageCount - 1 { page = pageCount - 1 }
     }
 }
 

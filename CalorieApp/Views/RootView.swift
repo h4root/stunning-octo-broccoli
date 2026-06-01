@@ -30,6 +30,7 @@ struct RootView: View {
     @State private var manualPrefill: FoodInfo?
     @State private var showBentoAdd = false
     @AppStorage("dashboard.page") private var dashboardPage = 0
+    @AppStorage("dashboard.goHome") private var goHome = 0
     @State private var lastDashboardTap = Date.distantPast
 
     private var tabSelection: Binding<MainTab> {
@@ -39,7 +40,7 @@ struct RootView: View {
                 if newValue == .dashboard && tab == .dashboard {
                     let now = Date()
                     if now.timeIntervalSince(lastDashboardTap) < 0.4 {
-                        withAnimation(.easeInOut) { dashboardPage = 0 }
+                        goHome &+= 1
                     }
                     lastDashboardTap = now
                 }
