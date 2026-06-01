@@ -194,13 +194,15 @@ private struct DashboardDayContent: View {
 
     private var totals: DayTotals { DayTotals(entries: entries) }
 
+    private var dayComplete: Bool { goalKcal > 0 && totals.kcal >= goalKcal }
+
     var body: some View {
         VStack(spacing: 18) {
             goalRow
             summaryCard
             if !bentoRaw.isEmpty {
                 BentoGrid(pageIndex: 0, totals: totals, goalKcal: goalKcal, goalProtein: goalProtein,
-                          goalFat: goalFat, goalCarbs: goalCarbs, streak: streakDays())
+                          goalFat: goalFat, goalCarbs: goalCarbs, streak: completedStreak())
             }
             mealsSection
         }
@@ -235,19 +237,19 @@ private struct DashboardDayContent: View {
 
             Spacer()
 
-            StreakIndicator(days: streakDays())
+            StreakIndicator(days: completedStreak(), complete: dayComplete)
         }
     }
 
     private var summaryCard: some View {
         VStack(spacing: 20) {
-            SemiCircleGauge(consumed: totals.kcal, goal: goalKcal)
+            SemiCircleGauge(consumed: totals.kcal, goal: goalKcal, burning: dayComplete)
                 .padding(.top, 8)
 
             VStack(spacing: 16) {
-                MacroBarWide(icon: "fish.fill", title: "Белки", consumed: totals.protein, goal: goalProtein, color: MacroColor.protein)
-                MacroBarWide(icon: "drop.fill", title: "Жиры", consumed: totals.fat, goal: goalFat, color: MacroColor.fat)
-                MacroBarWide(icon: "leaf.fill", title: "Углеводы", consumed: totals.carbs, goal: goalCarbs, color: MacroColor.carbs)
+                MacroBarWide(icon: "fish.fill", title: "Белки", consumed: totals.protein, goal: goalProtein, color: MacroColor.protein, burning: dayComplete)
+                MacroBarWide(icon: "drop.fill", title: "Жиры", consumed: totals.fat, goal: goalFat, color: MacroColor.fat, burning: dayComplete)
+                MacroBarWide(icon: "leaf.fill", title: "Углеводы", consumed: totals.carbs, goal: goalCarbs, color: MacroColor.carbs, burning: dayComplete)
             }
         }
         .padding(22)
@@ -294,16 +296,20 @@ private struct DashboardDayContent: View {
 
     private var isToday: Bool { Calendar.current.isDateInToday(day) }
 
-    private func streakDays() -> Int {
+    private func completedStreak() -> Int {
+        guard goalKcal > 0 else { return 0 }
         let cal = Calendar.current
-        let days = Set(allEntries.map { $0.day })
+        var perDay: [Date: Double] = [:]
+        for e in allEntries { perDay[e.day, default: 0] += e.kcal }
+        func met(_ d: Date) -> Bool { (perDay[cal.startOfDay(for: d)] ?? 0) >= goalKcal }
+
         var d = cal.startOfDay(for: Date())
-        if !days.contains(d) {
-            guard let y = cal.date(byAdding: .day, value: -1, to: d), days.contains(y) else { return 0 }
+        if !met(d) {
+            guard let y = cal.date(byAdding: .day, value: -1, to: d), met(y) else { return 0 }
             d = y
         }
         var streak = 0
-        while days.contains(d) {
+        while met(d) {
             streak += 1
             guard let prev = cal.date(byAdding: .day, value: -1, to: d) else { break }
             d = prev

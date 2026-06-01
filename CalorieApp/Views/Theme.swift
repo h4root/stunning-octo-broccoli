@@ -43,6 +43,13 @@ enum Theme {
         colors: [Color(hex: 0xE08AC6), Color(hex: 0xF0A878)],
         startPoint: .topLeading, endPoint: .bottomTrailing
     )
+
+    // «Огонь» — режим закрытого дня (полный стрик)
+    static let fire = Color(hex: 0xFF6A00)
+    static let fireGradient = LinearGradient(
+        colors: [Color(hex: 0xFFC23D), Color(hex: 0xFF4D00)],
+        startPoint: .topLeading, endPoint: .bottomTrailing
+    )
 }
 
 struct PressableButtonStyle: ButtonStyle {

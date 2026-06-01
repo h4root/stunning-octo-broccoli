@@ -182,13 +182,26 @@ struct BigMetricRing: View {
 struct SemiCircleGauge: View {
     var consumed: Double
     var goal: Double
+    var burning: Bool = false
     var lineWidth: CGFloat = 18
+
+    @State private var flicker = false
 
     private var progress: Double { goal > 0 ? min(consumed / goal, 1) : 0 }
     private var remaining: Double { max(goal - consumed, 0) }
 
     var body: some View {
         ZStack {
+            // Огненная аура (только в режиме закрытого дня)
+            if burning {
+                Circle()
+                    .trim(from: 0, to: 0.5)
+                    .stroke(Theme.fire, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                    .rotationEffect(.degrees(180))
+                    .padding(lineWidth / 2 + 2)
+                    .blur(radius: flicker ? 26 : 16)
+                    .opacity(flicker ? 0.75 : 0.45)
+            }
 
             ZStack {
                 Circle()
@@ -199,24 +212,25 @@ struct SemiCircleGauge: View {
 
                 Circle()
                     .trim(from: 0, to: 0.5 * progress)
-                    .stroke(Theme.accentGradient,
+                    .stroke(burning ? AnyShapeStyle(Theme.fireGradient) : AnyShapeStyle(Theme.accentGradient),
                             style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                     .rotationEffect(.degrees(180))
-                    .shadow(color: Theme.accentPink.opacity(0.45), radius: 8)
+                    .shadow(color: (burning ? Theme.fire : Theme.accentPink).opacity(0.5), radius: 8)
             }
             .padding(lineWidth / 2 + 2)
 
             VStack(spacing: 3) {
                 Image(systemName: "flame.fill")
                     .font(.system(size: 28))
-                    .foregroundStyle(Theme.accentPink)
+                    .foregroundStyle(burning ? Theme.fire : Theme.accentPink)
+                    .scaleEffect(burning && flicker ? 1.12 : 1)
                 Text(Fmt.kcal(remaining))
                     .font(.system(size: 40, weight: .bold, design: .rounded))
                     .foregroundStyle(Theme.textPrimary)
                     .contentTransition(.numericText())
-                Text("осталось, ккал")
+                Text(burning ? "цель закрыта" : "осталось, ккал")
                     .font(.caption)
-                    .foregroundStyle(Theme.textSecondary)
+                    .foregroundStyle(burning ? Theme.fire : Theme.textSecondary)
             }
             .multilineTextAlignment(.center)
             .offset(y: -16)
@@ -224,6 +238,16 @@ struct SemiCircleGauge: View {
         .frame(width: 240, height: 240)
         .padding(.bottom, -86)
         .animation(.easeOut(duration: 0.55), value: consumed)
+        .onChange(of: burning) { _, on in updateFlicker(on) }
+        .onAppear { updateFlicker(burning) }
+    }
+
+    private func updateFlicker(_ on: Bool) {
+        if on {
+            withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) { flicker = true }
+        } else {
+            flicker = false
+        }
     }
 }
 
@@ -271,15 +295,17 @@ struct MacroBarWide: View {
     var consumed: Double
     var goal: Double
     var color: Color
+    var burning: Bool = false
 
     private var progress: Double { goal > 0 ? min(consumed / goal, 1) : 0 }
+    private var tint: Color { burning ? Theme.fire : color }
 
     var body: some View {
         VStack(spacing: 8) {
             HStack(spacing: 8) {
                 Image(systemName: icon)
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(color)
+                    .foregroundStyle(tint)
                 Text(title)
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Theme.textPrimary)
@@ -294,9 +320,10 @@ struct MacroBarWide: View {
                 ZStack(alignment: .leading) {
                     Capsule().fill(Color.white.opacity(0.10))
                     Capsule()
-                        .fill(LinearGradient(colors: [color.opacity(0.7), color],
+                        .fill(LinearGradient(colors: [tint.opacity(0.7), tint],
                                              startPoint: .leading, endPoint: .trailing))
                         .frame(width: max(8, geo.size.width * progress))
+                        .shadow(color: burning ? Theme.fire.opacity(0.6) : .clear, radius: 6)
                 }
             }
             .frame(height: 9)
@@ -417,12 +444,16 @@ struct MealCardRow: View {
 
 struct StreakIndicator: View {
     var days: Int
+    var complete: Bool = false
+
+    private var iconColor: Color { complete ? Theme.fire : Theme.blue }
 
     var body: some View {
         HStack(spacing: 6) {
-            Image(systemName: "flame.fill")
+            Image(systemName: complete ? "flame.fill" : "flame")
                 .font(.system(size: 14, weight: .bold))
-                .foregroundStyle(days > 0 ? Theme.amber : Theme.textTertiary)
+                .foregroundStyle(iconColor)
+                .shadow(color: complete ? Theme.fire.opacity(0.7) : .clear, radius: 6)
             Text("\(days)")
                 .font(.subheadline.weight(.bold))
                 .foregroundStyle(Theme.textPrimary)
@@ -434,6 +465,6 @@ struct StreakIndicator: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 9)
         .background(.ultraThinMaterial, in: Capsule())
-        .overlay(Capsule().stroke(Theme.glassStroke, lineWidth: 1))
+        .overlay(Capsule().stroke(complete ? Theme.fire.opacity(0.5) : Theme.glassStroke, lineWidth: 1))
     }
 }
