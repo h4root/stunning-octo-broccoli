@@ -9,6 +9,10 @@ struct DashboardView: View {
     @State private var scrollID: Int? = 0
     @State private var selectedDay: Date = Calendar.current.startOfDay(for: Date())
 
+    private func storeAddDay(_ day: Date) {
+        UserDefaults.standard.set(day.timeIntervalSince1970, forKey: "dashboard.addDay")
+    }
+
     private var pageBinding: Binding<Int> {
         Binding(get: { scrollID ?? 0 }, set: { scrollID = $0 })
     }
@@ -37,7 +41,12 @@ struct DashboardView: View {
             DashboardPageDots(page: pageBinding, pageCount: $pageCount)
                 .padding(.bottom, 10)
         }
-        .onAppear { scrollID = min(storedPage, max(pageCount - 1, 0)) }
+        .onAppear {
+            scrollID = min(storedPage, max(pageCount - 1, 0))
+            selectedDay = Calendar.current.startOfDay(for: Date())
+            storeAddDay(selectedDay)
+        }
+        .onChange(of: selectedDay) { _, d in storeAddDay(d) }
         .onChange(of: scrollID) { _, p in if let p { storedPage = p } }
         .onChange(of: goHome) { _, _ in
             if (scrollID ?? 0) != 0 { scrollID = 0 }

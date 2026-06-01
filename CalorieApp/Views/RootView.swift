@@ -31,6 +31,7 @@ struct RootView: View {
     @State private var showBentoAdd = false
     @AppStorage("dashboard.page") private var dashboardPage = 0
     @AppStorage("dashboard.goHome") private var goHome = 0
+    @AppStorage("dashboard.addDay") private var addDayStored = Calendar.current.startOfDay(for: Date()).timeIntervalSince1970
     @State private var lastDashboardTap = Date.distantPast
 
     private var tabSelection: Binding<MainTab> {
@@ -89,7 +90,7 @@ struct RootView: View {
         .sheet(isPresented: $showSearch, onDismiss: presentPending) {
             FoodSearchView { pendingInfo = $0 }
         }
-        .sheet(item: $confirmInfo) { ConfirmFoodView(info: $0) }
+        .sheet(item: $confirmInfo) { ConfirmFoodView(info: $0, day: Date(timeIntervalSince1970: addDayStored)) }
         .sheet(isPresented: $showGoalPicker) { GoalPickerSheet() }
         .sheet(isPresented: $showBentoAdd) { BentoAddSheet(pageIndex: dashboardPage) }
     }
