@@ -25,7 +25,7 @@ struct OpenFoodFactsService {
 
     func product(barcode: String) async throws -> FoodInfo {
         if let cached = FoodCache.shared.barcode(barcode) { return cached }
-        let fields = "code,product_name,product_name_ru,brands,nutriments,serving_quantity,product_quantity,product_quantity_unit"
+        let fields = "code,product_name,product_name_ru,brands,nutriments,serving_quantity,product_quantity,product_quantity_unit,quantity"
         let urlString = "https://world.openfoodfacts.org/api/v2/product/\(barcode).json?fields=\(fields)"
         guard let url = URL(string: urlString) else { throw FoodLookupError.notFound }
 
@@ -94,6 +94,7 @@ private struct OFFProduct: Decodable {
     let nutriments: OFFNutriments?
 
     let productQuantity: Double?
+    let quantity: String?
 
     enum CodingKeys: String, CodingKey {
         case code
@@ -102,6 +103,7 @@ private struct OFFProduct: Decodable {
         case brands
         case nutriments
         case productQuantity = "product_quantity"
+        case quantity
     }
 
     init(from decoder: Decoder) throws {
@@ -111,6 +113,7 @@ private struct OFFProduct: Decodable {
         productNameRu = try c.decodeIfPresent(String.self, forKey: .productNameRu)
         brands = try c.decodeIfPresent(String.self, forKey: .brands)
         nutriments = try c.decodeIfPresent(OFFNutriments.self, forKey: .nutriments)
+        quantity = try? c.decodeIfPresent(String.self, forKey: .quantity)
 
         if let d = try? c.decode(Double.self, forKey: .productQuantity) {
             productQuantity = d
@@ -126,8 +129,11 @@ private struct OFFProduct: Decodable {
         guard let n = nutriments else { throw FoodLookupError.notFound }
 
         var grams = 100.0
-        if usePackageQuantity, let q = productQuantity, q >= 1, q <= 2000 {
-            grams = q.rounded()
+        if usePackageQuantity {
+            let net = productQuantity ?? quantity.flatMap(Self.parseQuantityToGrams)
+            if let net, net >= 1, net <= 3000 {
+                grams = net.rounded()
+            }
         }
 
         return FoodInfo(
@@ -140,6 +146,20 @@ private struct OFFProduct: Decodable {
             carbsPer100: n.carbs100 ?? 0,
             defaultGrams: grams
         )
+    }
+
+    static func parseQuantityToGrams(_ raw: String) -> Double? {
+        let s = raw.lowercased().replacingOccurrences(of: ",", with: ".")
+        guard let r = s.range(of: "[0-9]+(\\.[0-9]+)?", options: .regularExpression),
+              let value = Double(s[r]) else { return nil }
+        let unit = s[r.upperBound...]
+        func has(_ u: String) -> Bool { unit.contains(u) }
+        if has("kg") || has("кг") { return value * 1000 }
+        if has("ml") || has("мл") { return value }
+        if has("cl") { return value * 10 }
+        if has("l") || has("л") { return value * 1000 }
+        if has("oz") { return value * 28.35 }
+        return value
     }
 }
 

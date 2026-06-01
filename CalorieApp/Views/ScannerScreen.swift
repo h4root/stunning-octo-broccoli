@@ -11,7 +11,7 @@ struct ScannerScreen: View {
     @State private var lookupError: String?
     @State private var notFoundCode: String?
 
-    private let service = OpenFoodFactsService()
+    private let service = FoodService.shared
 
     enum Phase: Equatable {
         case scanning

@@ -22,7 +22,7 @@ struct FoodSearchView: View {
     @State private var isSearching = false
     @State private var searchError: String?
 
-    private let service = OpenFoodFactsService()
+    private let service = FoodService.shared
 
     private var filteredSaved: [SavedFood] {
         guard !searchText.isEmpty else { return savedFoods }

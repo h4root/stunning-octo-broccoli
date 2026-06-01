@@ -6,7 +6,7 @@ final class FoodCache {
 
     private let barcodeTTL: TimeInterval = 14 * 24 * 3600
     private let searchTTL: TimeInterval = 10 * 60
-    private let defaultsKey = "foodCache.barcodes"
+    private let defaultsKey = "foodCache.barcodes.v2"
 
     private struct Entry: Codable {
         let date: Date

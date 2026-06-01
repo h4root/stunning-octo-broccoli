@@ -28,6 +28,25 @@ struct RootView: View {
     @State private var confirmInfo: FoodInfo?
     @State private var pendingInfo: FoodInfo?
     @State private var manualPrefill: FoodInfo?
+    @State private var showBentoAdd = false
+    @AppStorage("dashboard.page") private var dashboardPage = 0
+    @State private var lastDashboardTap = Date.distantPast
+
+    private var tabSelection: Binding<MainTab> {
+        Binding(
+            get: { tab },
+            set: { newValue in
+                if newValue == .dashboard && tab == .dashboard {
+                    let now = Date()
+                    if now.timeIntervalSince(lastDashboardTap) < 0.4 {
+                        withAnimation(.easeInOut) { dashboardPage = 0 }
+                    }
+                    lastDashboardTap = now
+                }
+                tab = newValue
+            }
+        )
+    }
 
     @ToolbarContentBuilder
     private var greetingToolbarItem: some ToolbarContent {
@@ -71,10 +90,11 @@ struct RootView: View {
         }
         .sheet(item: $confirmInfo) { ConfirmFoodView(info: $0) }
         .sheet(isPresented: $showGoalPicker) { GoalPickerSheet() }
+        .sheet(isPresented: $showBentoAdd) { BentoAddSheet(pageIndex: dashboardPage) }
     }
 
     private var tabs: some View {
-        TabView(selection: $tab) {
+        TabView(selection: tabSelection) {
             NavigationStack {
                 DashboardView(onEditGoal: { showGoalPicker = true })
                     .navigationTitle("")
@@ -91,6 +111,10 @@ struct RootView: View {
                                 }
                                 Button { showManual = true } label: {
                                     Label("Вручную", systemImage: "square.and.pencil")
+                                }
+                                Divider()
+                                Button { showBentoAdd = true } label: {
+                                    Label("Добавить блок", systemImage: "square.grid.2x2")
                                 }
                             } label: {
                                 Image(systemName: "plus")
