@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 private enum QuickTab: String, CaseIterable, Identifiable {
+    case base = "Базовые"
     case recent = "Недавние"
     case favorite = "Избранное"
     case byDay = "По дням"
@@ -17,7 +18,7 @@ struct FoodSearchView: View {
     @Query(sort: [SortDescriptor(\FoodEntry.createdAt, order: .reverse)]) private var allEntries: [FoodEntry]
 
     @State private var searchText = ""
-    @State private var quickTab: QuickTab = .recent
+    @State private var quickTab: QuickTab = .base
     @State private var onlineResults: [FoodInfo] = []
     @State private var isSearching = false
     @State private var searchError: String?
@@ -88,6 +89,8 @@ struct FoodSearchView: View {
     @ViewBuilder
     private var quickContent: some View {
         switch quickTab {
+        case .base:
+            group { ForEach(ClassicFoodsDB.all) { classicRow($0) } }
         case .recent:
             if savedFoods.isEmpty { empty("Здесь появятся недавно добавленные продукты") }
             else { group { ForEach(savedFoods) { savedRow($0) } } }
@@ -120,8 +123,20 @@ struct FoodSearchView: View {
 
     @ViewBuilder
     private var searchResults: some View {
+        let local = ClassicFoodsDB.search(searchText)
+        if !local.isEmpty {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Продукты").font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Theme.textSecondary).padding(.horizontal, 4)
+                group { ForEach(local) { classicRow($0) } }
+            }
+        }
         if !filteredSaved.isEmpty {
-            group { ForEach(filteredSaved) { savedRow($0) } }
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Ваши продукты").font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Theme.textSecondary).padding(.horizontal, 4)
+                group { ForEach(filteredSaved) { savedRow($0) } }
+            }
         }
         VStack(alignment: .leading, spacing: 10) {
             Text("Open Food Facts").font(.subheadline.weight(.semibold))
@@ -203,6 +218,11 @@ struct FoodSearchView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+    }
+
+    private func classicRow(_ food: ClassicFood) -> some View {
+        let info = food.toFoodInfo()
+        return infoRow(info) { pick(info) }
     }
 
     private func infoRow(_ infoItem: FoodInfo, action: @escaping () -> Void) -> some View {
