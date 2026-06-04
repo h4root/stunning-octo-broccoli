@@ -202,12 +202,12 @@ struct FoodSearchView: View {
             pick(FoodInfo(name: entry.name, brand: entry.brand, barcode: entry.barcode,
                           kcalPer100: entry.kcalPer100, proteinPer100: entry.proteinPer100,
                           fatPer100: entry.fatPer100, carbsPer100: entry.carbsPer100,
-                          defaultGrams: entry.grams))
+                          defaultGrams: entry.grams, isLiquid: entry.isLiquid))
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(entry.name).foregroundStyle(Theme.textPrimary).lineLimit(1)
-                    Text("\(Fmt.g(entry.grams)) г · \(entry.meal.title)")
+                    Text("\(Fmt.g(entry.grams)) \(entry.unit) · \(entry.meal.title)")
                         .font(.caption).foregroundStyle(Theme.textSecondary)
                 }
                 Spacer()

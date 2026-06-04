@@ -45,6 +45,7 @@ final class FoodEntry {
     var fatPer100: Double = 0
     var carbsPer100: Double = 0
     var note: String = ""
+    var isLiquid: Bool = false
 
     init(name: String,
          brand: String? = nil,
@@ -56,7 +57,8 @@ final class FoodEntry {
          carbsPer100: Double,
          meal: Meal,
          day: Date = Date(),
-         note: String = "") {
+         note: String = "",
+         isLiquid: Bool = false) {
         self.id = UUID()
         self.createdAt = Date()
         self.day = Calendar.current.startOfDay(for: day)
@@ -70,7 +72,10 @@ final class FoodEntry {
         self.fatPer100 = fatPer100
         self.carbsPer100 = carbsPer100
         self.note = note
+        self.isLiquid = isLiquid
     }
+
+    var unit: String { isLiquid ? "мл" : "г" }
 
     var meal: Meal {
         get { Meal(rawValue: mealRaw) ?? .snack }
@@ -82,6 +87,17 @@ final class FoodEntry {
     var protein: Double { proteinPer100 * factor }
     var fat: Double { fatPer100 * factor }
     var carbs: Double { carbsPer100 * factor }
+}
+
+@Model
+final class WaterLog {
+    var day: Date = Calendar.current.startOfDay(for: Date())
+    var ml: Double = 0
+
+    init(day: Date, ml: Double) {
+        self.day = Calendar.current.startOfDay(for: day)
+        self.ml = ml
+    }
 }
 
 @Model
@@ -100,6 +116,7 @@ final class SavedFood {
     var lastUsed: Date = Date()
     var useCount: Int = 0
     var isFavorite: Bool = false
+    var isLiquid: Bool = false
 
     init(name: String,
          brand: String? = nil,
@@ -108,7 +125,8 @@ final class SavedFood {
          proteinPer100: Double,
          fatPer100: Double,
          carbsPer100: Double,
-         defaultGrams: Double = 100) {
+         defaultGrams: Double = 100,
+         isLiquid: Bool = false) {
         self.id = UUID()
         self.name = name
         self.brand = brand
@@ -120,6 +138,7 @@ final class SavedFood {
         self.defaultGrams = defaultGrams
         self.lastUsed = Date()
         self.useCount = 0
+        self.isLiquid = isLiquid
     }
 }
 
@@ -133,6 +152,7 @@ struct FoodInfo: Identifiable, Equatable, Codable {
     var fatPer100: Double
     var carbsPer100: Double
     var defaultGrams: Double = 100
+    var isLiquid: Bool = false
 
     init(name: String,
          brand: String? = nil,
@@ -141,7 +161,8 @@ struct FoodInfo: Identifiable, Equatable, Codable {
          proteinPer100: Double,
          fatPer100: Double,
          carbsPer100: Double,
-         defaultGrams: Double = 100) {
+         defaultGrams: Double = 100,
+         isLiquid: Bool = false) {
         self.name = name
         self.brand = brand
         self.barcode = barcode
@@ -150,6 +171,7 @@ struct FoodInfo: Identifiable, Equatable, Codable {
         self.fatPer100 = fatPer100
         self.carbsPer100 = carbsPer100
         self.defaultGrams = defaultGrams
+        self.isLiquid = isLiquid
     }
 
     init(saved: SavedFood) {
@@ -161,5 +183,6 @@ struct FoodInfo: Identifiable, Equatable, Codable {
         self.fatPer100 = saved.fatPer100
         self.carbsPer100 = saved.carbsPer100
         self.defaultGrams = saved.defaultGrams
+        self.isLiquid = saved.isLiquid
     }
 }

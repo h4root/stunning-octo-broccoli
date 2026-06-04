@@ -51,6 +51,7 @@ extension View {
 
 struct GramsRow: View {
     @Binding var grams: Double
+    var unit: String = "г"
     @State private var show = false
 
     var body: some View {
@@ -58,7 +59,7 @@ struct GramsRow: View {
             HStack {
                 Text("Количество").foregroundStyle(Theme.textPrimary)
                 Spacer()
-                Text("\(Fmt.kcal(grams)) г")
+                Text("\(Fmt.kcal(grams)) \(unit)")
                     .foregroundStyle(Theme.accentPink)
                     .fontWeight(.semibold)
                 Image(systemName: "chevron.up.chevron.down")
@@ -68,12 +69,13 @@ struct GramsRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .sheet(isPresented: $show) { GramsPickerSheet(grams: $grams) }
+        .sheet(isPresented: $show) { GramsPickerSheet(grams: $grams, unit: unit) }
     }
 }
 
 private struct GramsPickerSheet: View {
     @Binding var grams: Double
+    var unit: String = "г"
     @Environment(\.dismiss) private var dismiss
 
     private var maxGrams: Int { max(1000, Int(grams.rounded())) }
@@ -84,7 +86,7 @@ private struct GramsPickerSheet: View {
                 get: { min(max(Int(grams.rounded()), 1), maxGrams) },
                 set: { grams = Double($0) }
             )) {
-                ForEach(1...maxGrams, id: \.self) { Text("\($0) г").tag($0) }
+                ForEach(1...maxGrams, id: \.self) { Text("\($0) \(unit)").tag($0) }
             }
             .pickerStyle(.wheel)
             .labelsHidden()
@@ -149,7 +151,7 @@ struct ConfirmFoodView: View {
                 .listRowBackground(Theme.glassFill)
 
                 Section {
-                    GramsRow(grams: $grams)
+                    GramsRow(grams: $grams, unit: info.isLiquid ? "мл" : "г")
                 } header: { sectionHeader("Количество") }
                 .listRowBackground(Theme.glassFill)
 
@@ -193,7 +195,8 @@ struct ConfirmFoodView: View {
             name: info.name, brand: info.brand, barcode: info.barcode, grams: grams,
             kcalPer100: info.kcalPer100, proteinPer100: info.proteinPer100,
             fatPer100: info.fatPer100, carbsPer100: info.carbsPer100,
-            meal: meal, day: day, note: note.trimmingCharacters(in: .whitespacesAndNewlines)
+            meal: meal, day: day, note: note.trimmingCharacters(in: .whitespacesAndNewlines),
+            isLiquid: info.isLiquid
         )
         context.insert(entry)
         upsertSavedFood()
@@ -216,12 +219,13 @@ struct ConfirmFoodView: View {
             existing.proteinPer100 = info.proteinPer100
             existing.fatPer100 = info.fatPer100
             existing.carbsPer100 = info.carbsPer100
+            existing.isLiquid = info.isLiquid
         } else {
             let saved = SavedFood(
                 name: info.name, brand: info.brand, barcode: info.barcode,
                 kcalPer100: info.kcalPer100, proteinPer100: info.proteinPer100,
                 fatPer100: info.fatPer100, carbsPer100: info.carbsPer100,
-                defaultGrams: grams
+                defaultGrams: grams, isLiquid: info.isLiquid
             )
             saved.useCount = 1
             context.insert(saved)
@@ -259,7 +263,7 @@ struct EditEntryView: View {
                 .listRowBackground(Theme.glassFill)
 
                 Section {
-                    GramsRow(grams: $entry.grams)
+                    GramsRow(grams: $entry.grams, unit: entry.unit)
                 } header: { sectionHeader("Количество") }
                 .listRowBackground(Theme.glassFill)
 

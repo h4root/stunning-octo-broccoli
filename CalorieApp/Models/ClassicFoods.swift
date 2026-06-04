@@ -23,7 +23,7 @@ struct ClassicFood: Identifiable {
     func toFoodInfo() -> FoodInfo {
         FoodInfo(name: name, brand: nil, barcode: nil,
                  kcalPer100: kcal, proteinPer100: protein, fatPer100: fat, carbsPer100: carbs,
-                 defaultGrams: isLiquid ? 250 : 100)
+                 defaultGrams: isLiquid ? 250 : 100, isLiquid: isLiquid)
     }
 }
 

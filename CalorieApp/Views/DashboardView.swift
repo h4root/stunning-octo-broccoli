@@ -200,6 +200,7 @@ private struct DashboardDayContent: View {
         VStack(spacing: 18) {
             goalRow
             summaryCard
+            WaterCard(day: day)
             if !bentoRaw.isEmpty {
                 BentoGrid(pageIndex: 0, totals: totals, goalKcal: goalKcal, goalProtein: goalProtein,
                           goalFat: goalFat, goalCarbs: goalCarbs, streak: completedStreak())
