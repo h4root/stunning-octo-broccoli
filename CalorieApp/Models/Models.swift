@@ -44,6 +44,7 @@ final class FoodEntry {
     var proteinPer100: Double = 0
     var fatPer100: Double = 0
     var carbsPer100: Double = 0
+    var note: String = ""
 
     init(name: String,
          brand: String? = nil,
@@ -54,7 +55,8 @@ final class FoodEntry {
          fatPer100: Double,
          carbsPer100: Double,
          meal: Meal,
-         day: Date = Date()) {
+         day: Date = Date(),
+         note: String = "") {
         self.id = UUID()
         self.createdAt = Date()
         self.day = Calendar.current.startOfDay(for: day)
@@ -67,6 +69,7 @@ final class FoodEntry {
         self.proteinPer100 = proteinPer100
         self.fatPer100 = fatPer100
         self.carbsPer100 = carbsPer100
+        self.note = note
     }
 
     var meal: Meal {

@@ -417,6 +417,12 @@ struct MealCardRow: View {
                     pill("\(Fmt.g(entry.fat))", "drop.fill", MacroColor.fat)
                     pill("\(Fmt.g(entry.carbs))", "leaf.fill", MacroColor.carbs)
                 }
+                if !entry.note.isEmpty {
+                    Label(entry.note, systemImage: "text.quote")
+                        .font(.caption2)
+                        .foregroundStyle(Theme.textSecondary)
+                        .lineLimit(2)
+                }
             }
         }
         .padding(12)

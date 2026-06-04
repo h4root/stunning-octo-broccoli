@@ -114,6 +114,7 @@ struct ConfirmFoodView: View {
 
     @State private var grams: Double
     @State private var meal: Meal
+    @State private var note: String = ""
 
     init(info: FoodInfo, initialMeal: Meal = Meal.suggestedForNow(), day: Date = Date()) {
         self.info = info
@@ -159,6 +160,13 @@ struct ConfirmFoodView: View {
                 .listRowBackground(Color.clear)
 
                 Section {
+                    TextField("Например: без сахара", text: $note, axis: .vertical)
+                        .lineLimit(1...3)
+                        .foregroundStyle(Theme.textPrimary)
+                } header: { sectionHeader("Заметка") }
+                .listRowBackground(Theme.glassFill)
+
+                Section {
                     nutrientRow("Калории", "\(Fmt.kcal(info.kcalPer100)) ккал")
                     nutrientRow("Белки", "\(Fmt.g(info.proteinPer100)) г")
                     nutrientRow("Жиры", "\(Fmt.g(info.fatPer100)) г")
@@ -185,7 +193,7 @@ struct ConfirmFoodView: View {
             name: info.name, brand: info.brand, barcode: info.barcode, grams: grams,
             kcalPer100: info.kcalPer100, proteinPer100: info.proteinPer100,
             fatPer100: info.fatPer100, carbsPer100: info.carbsPer100,
-            meal: meal, day: day
+            meal: meal, day: day, note: note.trimmingCharacters(in: .whitespacesAndNewlines)
         )
         context.insert(entry)
         upsertSavedFood()
@@ -260,6 +268,13 @@ struct EditEntryView: View {
                         .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16))
                 } header: { sectionHeader("На вашу порцию") }
                 .listRowBackground(Color.clear)
+
+                Section {
+                    TextField("Например: без сахара", text: $entry.note, axis: .vertical)
+                        .lineLimit(1...3)
+                        .foregroundStyle(Theme.textPrimary)
+                } header: { sectionHeader("Заметка") }
+                .listRowBackground(Theme.glassFill)
             }
             .darkForm()
             .navigationTitle("Изменить")
