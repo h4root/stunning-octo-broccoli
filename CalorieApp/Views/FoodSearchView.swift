@@ -22,6 +22,8 @@ struct FoodSearchView: View {
     @State private var onlineResults: [FoodInfo] = []
     @State private var isSearching = false
     @State private var searchError: String?
+    @State private var aiLoading = false
+    @State private var aiError: String?
 
     private let service = FoodService.shared
 
@@ -155,6 +157,46 @@ struct FoodSearchView: View {
                 } else {
                     ForEach(onlineResults) { item in infoRow(item) { pick(item) } }
                 }
+            }
+        }
+        if AIConfig.isConfigured {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Нет в базе?").font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Theme.textSecondary).padding(.horizontal, 4)
+                group {
+                    Button { askAI() } label: {
+                        HStack(spacing: 10) {
+                            if aiLoading {
+                                ProgressView().tint(Theme.accentPink)
+                                Text("ИИ считает КБЖУ…").foregroundStyle(Theme.textSecondary)
+                            } else {
+                                Image(systemName: "sparkles").foregroundStyle(Theme.accentPink)
+                                Text("Узнать КБЖУ через ИИ").foregroundStyle(Theme.textPrimary)
+                            }
+                            Spacer()
+                        }
+                        .padding(16).contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(aiLoading)
+                }
+                if let aiError { info(aiError) }
+            }
+        }
+    }
+
+    private func askAI() {
+        aiError = nil
+        aiLoading = true
+        let q = searchText.trimmingCharacters(in: .whitespaces)
+        Task {
+            do {
+                let result = try await AIService.shared.nutrition(for: q)
+                aiLoading = false
+                pick(result)
+            } catch {
+                aiLoading = false
+                aiError = error.localizedDescription
             }
         }
     }

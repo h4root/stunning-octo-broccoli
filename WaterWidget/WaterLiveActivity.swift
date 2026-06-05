@@ -26,42 +26,44 @@ struct WaterLiveActivity: Widget {
             let done = isDone(context.state)
             return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    HStack(spacing: 9) {
+                    HStack(spacing: 8) {
                         Image(systemName: "drop.fill")
-                            .font(.title3)
+                            .font(.body)
                             .foregroundStyle(waterGradient)
                         VStack(alignment: .leading, spacing: 0) {
                             Text("Вода").font(.caption2).foregroundStyle(.secondary)
                             Text("\(Int(context.state.ml)) мл")
-                                .font(.headline).monospacedDigit()
+                                .font(.subheadline.weight(.semibold)).monospacedDigit()
                                 .contentTransition(.numericText())
+                                .lineLimit(1)
                         }
                     }
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     Gauge(value: p) {
-                        Image(systemName: "drop.fill")
+                        EmptyView()
                     } currentValueLabel: {
-                        Text("\(Int(p * 100))").font(.system(size: 13, weight: .bold)).monospacedDigit()
+                        Text("\(Int(p * 100))").font(.system(size: 12, weight: .bold)).monospacedDigit()
                     }
                     .gaugeStyle(.accessoryCircularCapacity)
                     .tint(waterColor)
-                    .frame(width: 44, height: 44)
+                    .frame(width: 38, height: 38)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    VStack(spacing: 6) {
+                    VStack(spacing: 5) {
                         ProgressView(value: p)
                             .tint(waterColor)
-                        HStack {
+                        HStack(spacing: 6) {
                             Text("Цель \(Int(context.state.goal)) мл")
                                 .font(.caption2).foregroundStyle(.secondary)
-                            Spacer()
-                            Text(done ? "Выполнено 🎉" : "Осталось \(Int(max(context.state.goal - context.state.ml, 0))) мл")
+                                .lineLimit(1).minimumScaleFactor(0.7)
+                            Spacer(minLength: 6)
+                            Text(done ? "Выполнено 🎉" : "Осталось \(Int(max(context.state.goal - context.state.ml, 0)))")
                                 .font(.caption2.weight(.medium))
                                 .foregroundStyle(done ? waterColor : .secondary)
+                                .lineLimit(1).minimumScaleFactor(0.7)
                         }
                     }
-                    .padding(.top, 2)
                 }
             } compactLeading: {
                 Image(systemName: done ? "checkmark.circle.fill" : "drop.fill")

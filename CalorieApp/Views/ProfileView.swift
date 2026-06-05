@@ -28,6 +28,10 @@ struct ProfileView: View {
     @AppStorage("goal.fat") private var goalFat = GoalsDefaults.fat
     @AppStorage("goal.carbs") private var goalCarbs = GoalsDefaults.carbs
     @AppStorage("profile.weightFromHealth") private var weightImported = false
+    @AppStorage("ai.provider") private var aiProviderRaw = AIProvider.openAI.rawValue
+    @AppStorage("ai.apiKey") private var aiKey = ""
+    @AppStorage("ai.baseURL") private var aiBaseURL = ""
+    @AppStorage("ai.model") private var aiModel = ""
 
     @State private var editing: ProfileField?
     @State private var importingWeight = false
@@ -50,6 +54,7 @@ struct ProfileView: View {
                 activitySection
                 goalSection
                 targetsSection
+                aiSection
                 healthBottomSection
                 resetSection
             }
@@ -203,6 +208,39 @@ struct ProfileView: View {
                  ? "Считается по формуле Mifflin–St Jeor с учётом активности и цели. Выключите тумблер, чтобы задать вручную."
                  : "Ручной режим. Включите тумблер для авто-расчёта по параметрам тела.")
             .foregroundStyle(Theme.textTertiary)
+        }
+        .listRowBackground(rowBackground)
+    }
+
+    private var aiProvider: AIProvider { AIProvider(rawValue: aiProviderRaw) ?? .openAI }
+
+    private var aiSection: some View {
+        Section {
+            Picker("Провайдер", selection: Binding(get: { aiProvider }, set: { aiProviderRaw = $0.rawValue })) {
+                ForEach(AIProvider.allCases) { Text($0.title).tag($0) }
+            }
+            .tint(Theme.accentPink)
+
+            SecureField("API-ключ", text: $aiKey)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .foregroundStyle(Theme.textPrimary)
+
+            TextField(aiProvider.defaultModel.isEmpty ? "Модель" : "Модель (\(aiProvider.defaultModel))", text: $aiModel)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .foregroundStyle(Theme.textPrimary)
+
+            TextField(aiProvider.defaultBaseURL.isEmpty ? "URL запросов (https://…)" : "URL (\(aiProvider.defaultBaseURL))", text: $aiBaseURL)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .keyboardType(.URL)
+                .foregroundStyle(Theme.textPrimary)
+        } header: {
+            sectionHeader("ИИ-помощник")
+        } footer: {
+            Text("Ключ и настройки хранятся только на устройстве. Используется, когда продукта нет ни в базе, ни в Open Food Facts — ИИ оценит КБЖУ. Поддерживаются OpenAI-совместимые API, Anthropic, Gemini; для Bedrock — через OpenAI-совместимый прокси (свой URL).")
+                .foregroundStyle(Theme.textTertiary)
         }
         .listRowBackground(rowBackground)
     }
