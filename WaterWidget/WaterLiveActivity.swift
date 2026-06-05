@@ -2,51 +2,132 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
+private let waterColor = Color(red: 0.33, green: 0.78, blue: 0.99)
+private let waterGradient = LinearGradient(
+    colors: [Color(red: 0.45, green: 0.88, blue: 1.0), Color(red: 0.20, green: 0.62, blue: 0.95)],
+    startPoint: .topLeading, endPoint: .bottomTrailing
+)
+
 private func waterProgress(_ s: WaterActivityAttributes.ContentState) -> Double {
     s.goal > 0 ? min(s.ml / s.goal, 1) : 0
 }
-
-private let waterColor = Color(red: 0.31, green: 0.76, blue: 0.97)
+private func isDone(_ s: WaterActivityAttributes.ContentState) -> Bool {
+    s.goal > 0 && s.ml >= s.goal
+}
 
 struct WaterLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: WaterActivityAttributes.self) { context in
-            HStack(spacing: 14) {
-                Image(systemName: "drop.fill")
-                    .font(.title2)
-                    .foregroundStyle(waterColor)
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Вода").font(.headline)
-                    ProgressView(value: waterProgress(context.state)).tint(waterColor)
-                }
-                Text("\(Int(context.state.ml))/\(Int(context.state.goal)) мл")
-                    .font(.subheadline.weight(.semibold))
-                    .monospacedDigit()
-            }
-            .padding()
-            .activityBackgroundTint(Color.black.opacity(0.6))
-            .activitySystemActionForegroundColor(waterColor)
+            WaterLockScreenView(state: context.state)
+                .activityBackgroundTint(Color.black.opacity(0.55))
+                .activitySystemActionForegroundColor(waterColor)
         } dynamicIsland: { context in
-            DynamicIsland {
+            let p = waterProgress(context.state)
+            let done = isDone(context.state)
+            return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    Label("Вода", systemImage: "drop.fill")
-                        .foregroundStyle(waterColor)
+                    HStack(spacing: 9) {
+                        Image(systemName: "drop.fill")
+                            .font(.title3)
+                            .foregroundStyle(waterGradient)
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text("Вода").font(.caption2).foregroundStyle(.secondary)
+                            Text("\(Int(context.state.ml)) мл")
+                                .font(.headline).monospacedDigit()
+                        }
+                    }
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    Text("\(Int(context.state.ml))/\(Int(context.state.goal)) мл")
-                        .font(.caption).monospacedDigit()
+                    Gauge(value: p) {
+                        Image(systemName: "drop.fill")
+                    } currentValueLabel: {
+                        Text("\(Int(p * 100))").font(.system(size: 13, weight: .bold)).monospacedDigit()
+                    }
+                    .gaugeStyle(.accessoryCircularCapacity)
+                    .tint(waterColor)
+                    .frame(width: 44, height: 44)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    ProgressView(value: waterProgress(context.state)).tint(waterColor)
+                    VStack(spacing: 6) {
+                        ProgressView(value: p)
+                            .tint(waterColor)
+                        HStack {
+                            Text("Цель \(Int(context.state.goal)) мл")
+                                .font(.caption2).foregroundStyle(.secondary)
+                            Spacer()
+                            Text(done ? "Выполнено 🎉" : "Осталось \(Int(max(context.state.goal - context.state.ml, 0))) мл")
+                                .font(.caption2.weight(.medium))
+                                .foregroundStyle(done ? waterColor : .secondary)
+                        }
+                    }
+                    .padding(.top, 2)
                 }
             } compactLeading: {
-                Image(systemName: "drop.fill").foregroundStyle(waterColor)
+                Image(systemName: done ? "checkmark.circle.fill" : "drop.fill")
+                    .foregroundStyle(waterColor)
             } compactTrailing: {
-                Text("\(Int(waterProgress(context.state) * 100))%")
-                    .font(.caption2).monospacedDigit()
+                Text("\(Int(p * 100))%")
+                    .font(.caption2.weight(.semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(waterColor)
             } minimal: {
                 Image(systemName: "drop.fill").foregroundStyle(waterColor)
             }
+            .keylineTint(waterColor)
         }
+    }
+}
+
+private struct WaterLockScreenView: View {
+    let state: WaterActivityAttributes.ContentState
+
+    private var p: Double { waterProgress(state) }
+    private var remaining: Double { max(state.goal - state.ml, 0) }
+    private var done: Bool { isDone(state) }
+
+    var body: some View {
+        HStack(spacing: 16) {
+            ZStack {
+                Circle().stroke(Color.white.opacity(0.12), lineWidth: 7)
+                Circle()
+                    .trim(from: 0, to: p)
+                    .stroke(waterGradient, style: StrokeStyle(lineWidth: 7, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                Image(systemName: done ? "checkmark" : "drop.fill")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundStyle(waterColor)
+            }
+            .frame(width: 56, height: 56)
+
+            VStack(alignment: .leading, spacing: 5) {
+                HStack {
+                    Text("Вода").font(.headline).foregroundStyle(.white)
+                    Spacer()
+                    Text("\(Int(p * 100))%")
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(waterColor)
+                        .monospacedDigit()
+                }
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text("\(Int(state.ml))")
+                        .font(.title3.weight(.bold)).monospacedDigit()
+                        .foregroundStyle(.white)
+                    Text("/ \(Int(state.goal)) мл")
+                        .font(.subheadline).foregroundStyle(.white.opacity(0.6))
+                }
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(Color.white.opacity(0.14))
+                        Capsule().fill(waterGradient)
+                            .frame(width: max(6, geo.size.width * p))
+                    }
+                }
+                .frame(height: 7)
+                Text(done ? "Цель выполнена 🎉" : "Осталось \(Int(remaining)) мл")
+                    .font(.caption2)
+                    .foregroundStyle(.white.opacity(0.6))
+            }
+        }
+        .padding(16)
     }
 }

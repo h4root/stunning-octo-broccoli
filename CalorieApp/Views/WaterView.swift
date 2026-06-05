@@ -77,14 +77,15 @@ struct WaterCard: View {
     }
 
     private func add(_ amount: Double) {
+        let newMl = max(0, ml + amount)
         if let log = logs.first {
-            log.ml = max(0, log.ml + amount)
-        } else if amount > 0 {
-            context.insert(WaterLog(day: day, ml: amount))
+            log.ml = newMl
+        } else if newMl > 0 {
+            context.insert(WaterLog(day: day, ml: newMl))
         }
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         if Calendar.current.isDateInToday(day) {
-            WaterActivityManager.shared.update(ml: max(0, ml), goal: goalMl)
+            WaterActivityManager.shared.update(ml: newMl, goal: goalMl)
         }
     }
 }
