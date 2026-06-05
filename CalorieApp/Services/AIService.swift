@@ -45,18 +45,21 @@ enum AIProvider: String, CaseIterable, Identifiable {
         }
     }
 
-    var defaultModel: String {
+    var defaultModel: String { models.first ?? "" }
+
+    /// Заготовки популярных моделей под провайдера.
+    var models: [String] {
         switch self {
-        case .openAI:     return "gpt-4o-mini"
-        case .anthropic:  return "claude-3-5-haiku-latest"
-        case .google:     return "gemini-1.5-flash"
-        case .groq:       return "llama-3.3-70b-versatile"
-        case .openRouter: return "openai/gpt-4o-mini"
-        case .deepSeek:   return "deepseek-chat"
-        case .mistral:    return "mistral-small-latest"
-        case .xAI:        return "grok-2-latest"
-        case .perplexity: return "sonar"
-        case .custom:     return ""
+        case .openAI:     return ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1", "o4-mini"]
+        case .anthropic:  return ["claude-3-5-haiku-latest", "claude-3-5-sonnet-latest", "claude-3-7-sonnet-latest"]
+        case .google:     return ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"]
+        case .groq:       return ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"]
+        case .openRouter: return ["openai/gpt-4o-mini", "anthropic/claude-3.5-haiku", "google/gemini-flash-1.5", "meta-llama/llama-3.3-70b-instruct"]
+        case .deepSeek:   return ["deepseek-chat", "deepseek-reasoner"]
+        case .mistral:    return ["mistral-small-latest", "mistral-large-latest", "open-mistral-nemo"]
+        case .xAI:        return ["grok-2-latest", "grok-2-1212", "grok-beta"]
+        case .perplexity: return ["sonar", "sonar-pro", "sonar-reasoning"]
+        case .custom:     return []
         }
     }
 }

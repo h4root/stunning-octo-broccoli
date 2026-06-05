@@ -226,7 +226,31 @@ struct ProfileView: View {
                 .autocorrectionDisabled()
                 .foregroundStyle(Theme.textPrimary)
 
-            TextField(aiProvider.defaultModel.isEmpty ? "Модель" : "Модель (\(aiProvider.defaultModel))", text: $aiModel)
+            if !aiProvider.models.isEmpty {
+                Menu {
+                    ForEach(aiProvider.models, id: \.self) { m in
+                        Button { aiModel = m } label: {
+                            if aiModel == m || (aiModel.isEmpty && m == aiProvider.defaultModel) {
+                                Label(m, systemImage: "checkmark")
+                            } else {
+                                Text(m)
+                            }
+                        }
+                    }
+                } label: {
+                    HStack {
+                        Text("Модель").foregroundStyle(Theme.textPrimary)
+                        Spacer()
+                        Text(aiModel.isEmpty ? aiProvider.defaultModel : aiModel)
+                            .foregroundStyle(Theme.accentPink).lineLimit(1)
+                        Image(systemName: "chevron.up.chevron.down")
+                            .font(.caption2).foregroundStyle(Theme.accentPink)
+                    }
+                    .contentShape(Rectangle())
+                }
+            }
+
+            TextField(aiProvider.models.isEmpty ? "Модель" : "Своя модель (необязательно)", text: $aiModel)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .foregroundStyle(Theme.textPrimary)
