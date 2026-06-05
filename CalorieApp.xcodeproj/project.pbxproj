@@ -6,6 +6,45 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		BB0000000000000000000013 /* WaterWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000010 /* WaterWidgetBundle.swift */; };
+		BB0000000000000000000014 /* WaterLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000011 /* WaterLiveActivity.swift */; };
+		BB0000000000000000000015 /* WaterActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000012 /* WaterActivityAttributes.swift */; };
+		BB0000000000000000000016 /* WaterActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000012 /* WaterActivityAttributes.swift */; };
+		BB0000000000000000000018 /* WaterWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000009 /* WaterWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BB000000000000000000001A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA000000000000000000000A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BB0000000000000000000002;
+			remoteInfo = WaterWidget;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BB0000000000000000000017 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				BB0000000000000000000018 /* WaterWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		BB0000000000000000000009 /* WaterWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WaterWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB0000000000000000000010 /* WaterWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterWidgetBundle.swift; sourceTree = "<group>"; };
+		BB0000000000000000000011 /* WaterLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterLiveActivity.swift; sourceTree = "<group>"; };
+		BB0000000000000000000012 /* WaterActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterActivityAttributes.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AA0000000000000000000001 /* CalorieApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -22,6 +61,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BB0000000000000000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -29,6 +75,7 @@
 			isa = PBXGroup;
 			children = (
 				AA0000000000000000000001 /* CalorieApp */,
+				BB0000000000000000000001 /* WaterWidget */,
 				AA0000000000000000000004 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -37,8 +84,19 @@
 			isa = PBXGroup;
 			children = (
 				AA0000000000000000000005 /* CalorieApp.app */,
+				BB0000000000000000000009 /* WaterWidget.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		BB0000000000000000000001 /* WaterWidget */ = {
+			isa = PBXGroup;
+			children = (
+				BB0000000000000000000010 /* WaterWidgetBundle.swift */,
+				BB0000000000000000000011 /* WaterLiveActivity.swift */,
+				BB0000000000000000000012 /* WaterActivityAttributes.swift */,
+			);
+			path = WaterWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -51,10 +109,12 @@
 				AA0000000000000000000008 /* Sources */,
 				AA0000000000000000000002 /* Frameworks */,
 				AA0000000000000000000009 /* Resources */,
+				BB0000000000000000000017 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				BB0000000000000000000019 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				AA0000000000000000000001 /* CalorieApp */,
@@ -63,6 +123,23 @@
 			productName = CalorieApp;
 			productReference = AA0000000000000000000005 /* CalorieApp.app */;
 			productType = "com.apple.product-type.application";
+		};
+		BB0000000000000000000002 /* WaterWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB0000000000000000000006 /* Build configuration list for PBXNativeTarget "WaterWidget" */;
+			buildPhases = (
+				BB0000000000000000000003 /* Sources */,
+				BB0000000000000000000004 /* Frameworks */,
+				BB0000000000000000000005 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WaterWidget;
+			productName = WaterWidget;
+			productReference = BB0000000000000000000009 /* WaterWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -75,6 +152,9 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					AA0000000000000000000006 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+					BB0000000000000000000002 = {
 						CreatedOnToolsVersion = 16.0;
 					};
 				};
@@ -94,12 +174,20 @@
 			projectRoot = "";
 			targets = (
 				AA0000000000000000000006 /* CalorieApp */,
+				BB0000000000000000000002 /* WaterWidget */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		AA0000000000000000000009 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB0000000000000000000005 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -113,10 +201,29 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BB0000000000000000000016 /* WaterActivityAttributes.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB0000000000000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB0000000000000000000013 /* WaterWidgetBundle.swift in Sources */,
+				BB0000000000000000000014 /* WaterLiveActivity.swift in Sources */,
+				BB0000000000000000000015 /* WaterActivityAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BB0000000000000000000019 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BB0000000000000000000002 /* WaterWidget */;
+			targetProxy = BB000000000000000000001A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		AA000000000000000000000C /* Debug */ = {
@@ -222,6 +329,7 @@
 				INFOPLIST_KEY_NSCameraUsageDescription = "Камера нужна для сканирования штрихкодов продуктов.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Доступ к «Здоровью» нужен, чтобы показывать шаги, тренировки и подтягивать вес.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Разрешение позволяет сохранять данные в «Здоровье».";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -255,6 +363,7 @@
 				INFOPLIST_KEY_NSCameraUsageDescription = "Камера нужна для сканирования штрихкодов продуктов.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Доступ к «Здоровью» нужен, чтобы показывать шаги, тренировки и подтягивать вес.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Разрешение позволяет сохранять данные в «Здоровье».";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -268,6 +377,62 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.daniel.CalorieApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		BB0000000000000000000007 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3392KYH339;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WaterWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Вода";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.daniel.CalorieApp.WaterWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BB0000000000000000000008 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3392KYH339;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WaterWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Вода";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.daniel.CalorieApp.WaterWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -291,6 +456,15 @@
 			buildConfigurations = (
 				AA000000000000000000000E /* Debug */,
 				AA000000000000000000000F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BB0000000000000000000006 /* Build configuration list for PBXNativeTarget "WaterWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB0000000000000000000007 /* Debug */,
+				BB0000000000000000000008 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

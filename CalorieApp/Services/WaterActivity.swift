@@ -1,13 +1,6 @@
 import Foundation
 import ActivityKit
 
-struct WaterActivityAttributes: ActivityAttributes {
-    public struct ContentState: Codable, Hashable {
-        var ml: Double
-        var goal: Double
-    }
-}
-
 final class WaterActivityManager {
     static let shared = WaterActivityManager()
     private var activity: Activity<WaterActivityAttributes>?
