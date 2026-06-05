@@ -17,12 +17,16 @@ struct WaterCard: View {
     private var progress: Double { goalMl > 0 ? min(ml / goalMl, 1) : 0 }
     private let water = Color(hex: 0x4FC3F7)
 
+    private var done: Bool { goalMl > 0 && ml >= goalMl }
+
     var body: some View {
         VStack(spacing: 14) {
             HStack(spacing: 10) {
-                Image(systemName: "drop.fill")
+                Image(systemName: done ? "checkmark.circle.fill" : "drop.fill")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(water)
+                    .symbolEffect(.bounce, value: ml)
+                    .contentTransition(.symbolEffect(.replace))
                 Text("Вода").font(.headline).foregroundStyle(Theme.textPrimary)
                 Spacer()
                 Text("\(Fmt.kcal(ml)) / \(Fmt.kcal(goalMl)) мл")
@@ -39,6 +43,7 @@ struct WaterCard: View {
                         .fill(LinearGradient(colors: [water.opacity(0.7), water],
                                              startPoint: .leading, endPoint: .trailing))
                         .frame(width: max(8, geo.size.width * progress))
+                        .shadow(color: done ? water.opacity(0.7) : .clear, radius: 6)
                 }
             }
             .frame(height: 10)
@@ -60,7 +65,11 @@ struct WaterCard: View {
         .padding(18)
         .frame(maxWidth: .infinity)
         .glassCard(cornerRadius: 22)
-        .animation(.easeOut(duration: 0.4), value: ml)
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(water.opacity(done ? 0.55 : 0), lineWidth: 1.5)
+        )
+        .animation(.spring(response: 0.5, dampingFraction: 0.7), value: ml)
     }
 
     private func addButton(_ amount: Double) -> some View {

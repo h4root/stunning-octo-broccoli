@@ -34,6 +34,7 @@ struct WaterLiveActivity: Widget {
                             Text("Вода").font(.caption2).foregroundStyle(.secondary)
                             Text("\(Int(context.state.ml)) мл")
                                 .font(.headline).monospacedDigit()
+                                .contentTransition(.numericText())
                         }
                     }
                 }
@@ -70,6 +71,7 @@ struct WaterLiveActivity: Widget {
                     .font(.caption2.weight(.semibold))
                     .monospacedDigit()
                     .foregroundStyle(waterColor)
+                    .contentTransition(.numericText())
             } minimal: {
                 Image(systemName: "drop.fill").foregroundStyle(waterColor)
             }
@@ -107,11 +109,13 @@ private struct WaterLockScreenView: View {
                         .font(.subheadline.weight(.bold))
                         .foregroundStyle(waterColor)
                         .monospacedDigit()
+                        .contentTransition(.numericText())
                 }
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text("\(Int(state.ml))")
                         .font(.title3.weight(.bold)).monospacedDigit()
                         .foregroundStyle(.white)
+                        .contentTransition(.numericText())
                     Text("/ \(Int(state.goal)) мл")
                         .font(.subheadline).foregroundStyle(.white.opacity(0.6))
                 }
