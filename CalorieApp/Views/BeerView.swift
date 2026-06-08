@@ -47,6 +47,8 @@ struct BeerView: View {
                 statsRow
                 if !todayLogs.isEmpty { undoRow }
                 catalogSection("Пивоварни Бочкарёв 🍺", BeerCatalog.bochkarev)
+                catalogSection("Балтика 🍺", BeerCatalog.baltika)
+                catalogSection("Пшеничные · Бельгия 🌾", BeerCatalog.wheat)
                 catalogSection("Другие марки", BeerCatalog.others)
                 disclaimer
             }
