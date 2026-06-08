@@ -13,19 +13,31 @@ struct Beer: Identifiable, Hashable {
 }
 
 enum BeerCatalog {
-    static let heineken: [Beer] = [
-        Beer(name: "Heineken", owner: "Heineken", abv: 5.0, kcalPer100: 42, colorHex: 0x2E7D32),
-        Beer(name: "Amstel Premium", owner: "Heineken", abv: 4.8, kcalPer100: 43, colorHex: 0xC62828),
-        Beer(name: "Krušovice", owner: "Heineken", abv: 4.2, kcalPer100: 41, colorHex: 0xB71C1C),
-        Beer(name: "Gösser", owner: "Heineken", abv: 4.7, kcalPer100: 42, colorHex: 0x2E5D34),
-        Beer(name: "Edelweiss", owner: "Heineken", abv: 5.3, kcalPer100: 49, colorHex: 0xE9B949),
-        Beer(name: "Affligem", owner: "Heineken", abv: 6.7, kcalPer100: 55, colorHex: 0x8D6E63),
-        Beer(name: "Бочкарёв", owner: "Heineken", abv: 4.7, kcalPer100: 43, colorHex: 0xF9A825),
-        Beer(name: "Охота крепкое", owner: "Heineken", abv: 8.1, kcalPer100: 58, colorHex: 0xC0392B),
-        Beer(name: "Три медведя", owner: "Heineken", abv: 4.5, kcalPer100: 42, colorHex: 0x6D4C41),
-        Beer(name: "ПИТ", owner: "Heineken", abv: 4.6, kcalPer100: 42, colorHex: 0xEF6C00),
-        Beer(name: "Доктор Дизель", owner: "Heineken", abv: 5.2, kcalPer100: 45, colorHex: 0x37474F),
-        Beer(name: "Zlatý Bažant", owner: "Heineken", abv: 5.0, kcalPer100: 43, colorHex: 0xD4AF37)
+    static let bochkarev: [Beer] = [
+        Beer(name: "Бочкарёв", owner: "Бочкарёв", abv: 4.7, kcalPer100: 43, colorHex: 0xF9A825),
+        Beer(name: "La Costa Fresca", owner: "Бочкарёв", abv: 4.5, kcalPer100: 42, colorHex: 0x8DC63F),
+        Beer(name: "Dr. Diesel", owner: "Бочкарёв", abv: 6.9, kcalPer100: 56, colorHex: 0x37474F),
+        Beer(name: "Мистер Лис", owner: "Бочкарёв", abv: 4.5, kcalPer100: 42, colorHex: 0xE07B39),
+        Beer(name: "Gold Beer", owner: "Бочкарёв", abv: 4.6, kcalPer100: 43, colorHex: 0xD4AF37),
+        Beer(name: "Жигулёвское 1978", owner: "Бочкарёв", abv: 4.0, kcalPer100: 41, colorHex: 0xEF9A00),
+        Beer(name: "Black Sheep", owner: "Бочкарёв", abv: 4.8, kcalPer100: 44, colorHex: 0x263238),
+        Beer(name: "Edelweiss", owner: "Бочкарёв", abv: 5.3, kcalPer100: 49, colorHex: 0xE9B949),
+        Beer(name: "Берег Байкала", owner: "Бочкарёв", abv: 4.5, kcalPer100: 42, colorHex: 0x2E86C1),
+        Beer(name: "Okome", owner: "Бочкарёв", abv: 5.0, kcalPer100: 44, colorHex: 0xC0A062),
+        Beer(name: "Три Медведя", owner: "Бочкарёв", abv: 4.5, kcalPer100: 42, colorHex: 0x6D4C41),
+        Beer(name: "ПИТ", owner: "Бочкарёв", abv: 4.6, kcalPer100: 42, colorHex: 0xEF6C00),
+        Beer(name: "Степан Разин", owner: "Бочкарёв", abv: 4.8, kcalPer100: 43, colorHex: 0xB03A2E),
+        Beer(name: "Feilong", owner: "Бочкарёв", abv: 4.7, kcalPer100: 43, colorHex: 0xC0392B),
+        Beer(name: "Окское", owner: "Бочкарёв", abv: 4.5, kcalPer100: 42, colorHex: 0x1E8449),
+        Beer(name: "Gösser", owner: "Бочкарёв", abv: 4.7, kcalPer100: 42, colorHex: 0x2E5D34),
+        Beer(name: "Шихан", owner: "Бочкарёв", abv: 4.8, kcalPer100: 43, colorHex: 0xB8860B),
+        Beer(name: "Охота Крепкое", owner: "Бочкарёв", abv: 8.1, kcalPer100: 58, colorHex: 0x8B0000),
+        Beer(name: "Maison Arne", owner: "Бочкарёв", abv: 5.0, kcalPer100: 44, colorHex: 0x6C3483),
+        Beer(name: "Krušovice Kronprinz", owner: "Бочкарёв", abv: 5.0, kcalPer100: 43, colorHex: 0xB71C1C),
+        Beer(name: "Калинкинъ", owner: "Бочкарёв", abv: 4.5, kcalPer100: 42, colorHex: 0xCB4335),
+        Beer(name: "United Legacy", owner: "Бочкарёв", abv: 5.0, kcalPer100: 45, colorHex: 0x34495E),
+        Beer(name: "Белый Кремль", owner: "Бочкарёв", abv: 4.8, kcalPer100: 46, colorHex: 0xAEB6BF),
+        Beer(name: "Москвич", owner: "Бочкарёв", abv: 4.5, kcalPer100: 42, colorHex: 0x922B21)
     ]
 
     static let others: [Beer] = [
@@ -43,7 +55,7 @@ enum BeerCatalog {
         Beer(name: "Corona Extra", owner: "AB InBev", abv: 4.5, kcalPer100: 42, colorHex: 0xFBC02D)
     ]
 
-    static let all: [Beer] = heineken + others
+    static let all: [Beer] = bochkarev + others
 
     static func find(_ name: String) -> Beer? { all.first { $0.name == name } }
 }

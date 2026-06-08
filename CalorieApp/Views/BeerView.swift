@@ -46,7 +46,7 @@ struct BeerView: View {
                 BeerGauge(bottles: bottles, goal: goalBottles, color: gold)
                 statsRow
                 if !todayLogs.isEmpty { undoRow }
-                catalogSection("От Heineken 🍺", BeerCatalog.heineken)
+                catalogSection("Пивоварни Бочкарёв 🍺", BeerCatalog.bochkarev)
                 catalogSection("Другие марки", BeerCatalog.others)
                 disclaimer
             }
