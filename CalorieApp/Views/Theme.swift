@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 extension Color {
     init(hex: UInt, alpha: Double = 1) {
@@ -87,6 +88,126 @@ struct AppBackground: View {
                 .offset(x: 150, y: 320)
         }
         .ignoresSafeArea()
+    }
+}
+
+struct LavaBlob: Identifiable {
+    let id = UUID()
+    let size: CGFloat
+    let ampX: CGFloat
+    let ampY: CGFloat
+    let speed: Double
+    let phase: Double
+    let baseX: CGFloat
+    let baseY: CGFloat
+    let colorIndex: Int
+}
+
+struct LavaRipple: Identifiable {
+    let id = UUID()
+    let color: Color
+    let start: Date
+    let unitX: CGFloat
+    let unitY: CGFloat
+}
+
+private func lavaLerp(_ a: Color, _ b: Color, _ t: Double) -> Color {
+    let ua = UIColor(a), ub = UIColor(b)
+    var r1: CGFloat = 0, g1: CGFloat = 0, b1: CGFloat = 0, a1: CGFloat = 0
+    var r2: CGFloat = 0, g2: CGFloat = 0, b2: CGFloat = 0, a2: CGFloat = 0
+    ua.getRed(&r1, green: &g1, blue: &b1, alpha: &a1)
+    ub.getRed(&r2, green: &g2, blue: &b2, alpha: &a2)
+    let f = CGFloat(min(max(t, 0), 1))
+    return Color(.sRGB,
+                 red: Double(r1 + (r2 - r1) * f),
+                 green: Double(g1 + (g2 - g1) * f),
+                 blue: Double(b1 + (b2 - b1) * f),
+                 opacity: Double(a1 + (a2 - a1) * f))
+}
+
+struct LavaLampBackground: View {
+    var colors: [Color]
+    var baseTop: Color
+    var baseBottom: Color
+    var blobOpacity: Double = 0.5
+    var ripples: [LavaRipple] = []
+    var focus: UnitPoint = UnitPoint(x: 0.5, y: 0.32)
+
+    @State private var fromPalette: [Color] = []
+    @State private var toPalette: [Color] = []
+    @State private var transitionStart: Date = .distantPast
+
+    private let transitionDuration: Double = 1.8
+    private let rippleLife: Double = 1.5
+
+    private static let blobs: [LavaBlob] = [
+        LavaBlob(size: 320, ampX: 0.18, ampY: 0.16, speed: 0.10, phase: 0.0, baseX: 0.30, baseY: 0.28, colorIndex: 0),
+        LavaBlob(size: 380, ampX: 0.22, ampY: 0.20, speed: 0.07, phase: 1.7, baseX: 0.72, baseY: 0.40, colorIndex: 1),
+        LavaBlob(size: 280, ampX: 0.20, ampY: 0.24, speed: 0.12, phase: 3.1, baseX: 0.45, baseY: 0.70, colorIndex: 2),
+        LavaBlob(size: 240, ampX: 0.26, ampY: 0.18, speed: 0.09, phase: 4.6, baseX: 0.80, baseY: 0.78, colorIndex: 3),
+        LavaBlob(size: 300, ampX: 0.16, ampY: 0.22, speed: 0.06, phase: 2.3, baseX: 0.18, baseY: 0.84, colorIndex: 4)
+    ]
+
+    private func resolve(_ b: LavaBlob, _ palette: [Color]) -> Color {
+        let p = palette.isEmpty ? colors : palette
+        return p.isEmpty ? .clear : p[b.colorIndex % p.count]
+    }
+
+    var body: some View {
+        TimelineView(.animation) { timeline in
+            let t = timeline.date.timeIntervalSinceReferenceDate
+            let prog = min(max((t - transitionStart.timeIntervalSinceReferenceDate) / transitionDuration, 0), 1)
+            GeometryReader { geo in
+                let w = geo.size.width
+                let h = geo.size.height
+                ZStack {
+                    LinearGradient(colors: [baseTop, baseBottom], startPoint: .top, endPoint: .bottom)
+
+                    ZStack {
+                        ForEach(Self.blobs) { b in
+                            let x = w * (b.baseX + b.ampX * CGFloat(sin(t * b.speed + b.phase)))
+                            let y = h * (b.baseY + b.ampY * CGFloat(cos(t * b.speed * 0.8 + b.phase)))
+                            let s = b.size * (1 + 0.10 * CGFloat(sin(t * b.speed * 1.3 + b.phase)))
+                            let fill = lavaLerp(resolve(b, fromPalette), resolve(b, toPalette), prog)
+                            Circle()
+                                .fill(fill)
+                                .frame(width: s, height: s)
+                                .position(x: x, y: y)
+                                .blur(radius: 70)
+                                .opacity(blobOpacity)
+                        }
+                        ForEach(ripples) { r in
+                            let age = t - r.start.timeIntervalSinceReferenceDate
+                            if age >= 0 && age < rippleLife {
+                                let p = age / rippleLife
+                                Circle()
+                                    .fill(r.color)
+                                    .frame(width: 70 + CGFloat(p) * 460, height: 70 + CGFloat(p) * 460)
+                                    .position(x: w * r.unitX, y: h * r.unitY)
+                                    .opacity((1 - p) * 0.55)
+                                    .blur(radius: 45)
+                            }
+                        }
+                    }
+                    .blendMode(.plusLighter)
+                    .drawingGroup()
+
+                    RadialGradient(colors: [.black.opacity(0.30), .clear],
+                                   center: focus, startRadius: 8, endRadius: 280)
+                    LinearGradient(colors: [.black.opacity(0.10), .clear, .black.opacity(0.22)],
+                                   startPoint: .top, endPoint: .bottom)
+                }
+            }
+            .ignoresSafeArea()
+        }
+        .onAppear {
+            if toPalette.isEmpty { toPalette = colors; fromPalette = colors }
+        }
+        .onChange(of: colors) { _, new in
+            fromPalette = toPalette.isEmpty ? new : toPalette
+            toPalette = new
+            transitionStart = Date()
+        }
     }
 }
 

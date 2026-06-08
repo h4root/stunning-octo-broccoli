@@ -8,7 +8,10 @@ struct BeerView: View {
     @AppStorage("profile.sex") private var sexRaw = "male"
     @AppStorage("fun.beerGoal") private var goalBottles = 5.0
 
+    @State private var ripples: [LavaRipple] = []
+
     private let gold = Color(hex: 0xF2A900)
+    private let defaultPalette = [Color(hex: 0xF2A900), Color(hex: 0xFFD54F), Color(hex: 0xC8741A)]
 
     private var today: Date { Calendar.current.startOfDay(for: Date()) }
     private var todayLogs: [BeerLog] { allLogs.filter { $0.day == today } }
@@ -58,16 +61,27 @@ struct BeerView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    private var beerBackground: some View {
-        ZStack {
-            LinearGradient(colors: [Color(hex: 0x241B0B), Theme.bgBottom],
-                           startPoint: .top, endPoint: .bottom)
-            Circle().fill(gold.opacity(0.30)).frame(width: 340, height: 340)
-                .blur(radius: 130).offset(x: -120, y: -240)
-            Circle().fill(Color(hex: 0xFFD54F).opacity(0.22)).frame(width: 320, height: 320)
-                .blur(radius: 140).offset(x: 150, y: 320)
+    private var palette: [Color] {
+        var seen = Set<String>()
+        var ordered: [Color] = []
+        for log in todayLogs {
+            guard seen.insert(log.brand).inserted else { continue }
+            ordered.append(BeerCatalog.find(log.brand)?.color ?? gold)
         }
-        .ignoresSafeArea()
+        guard !ordered.isEmpty else { return defaultPalette }
+        var p = ordered
+        while p.count < 3 { p.append(contentsOf: ordered) }
+        return Array(p.prefix(6))
+    }
+
+    private var beerBackground: some View {
+        LavaLampBackground(
+            colors: palette,
+            baseTop: Color(hex: 0x241B0B),
+            baseBottom: Theme.bgBottom,
+            blobOpacity: 0.5,
+            ripples: ripples
+        )
     }
 
     private var streakBadge: some View {
@@ -178,6 +192,13 @@ struct BeerView: View {
     private func add(_ beer: Beer) {
         context.insert(BeerLog(day: today, brand: beer.name, ml: 500, abv: beer.abv))
         UINotificationFeedbackGenerator().notificationOccurred(.success)
+        let ripple = LavaRipple(color: beer.color, start: Date(),
+                                unitX: 0.5 + CGFloat.random(in: -0.16...0.16),
+                                unitY: 0.30 + CGFloat.random(in: -0.06...0.06))
+        ripples.append(ripple)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+            ripples.removeAll { $0.id == ripple.id }
+        }
     }
 }
 
