@@ -7,6 +7,12 @@ SwiftUI + SwiftData, iOS 17+.
 ![SwiftUI](https://img.shields.io/badge/SwiftUI-blue)
 ![iOS](https://img.shields.io/badge/iOS-17%2B-black)
 
+## Скриншоты
+
+| Дашборд | Поиск продуктов | Старт |
+|:---:|:---:|:---:|
+| <img src="docs/dashboard.png" width="240"> | <img src="docs/search.png" width="240"> | <img src="docs/onboarding.png" width="240"> |
+
 ## Функционал
 
 - **Дашборд** — полукруглый спидометр калорий с закрытием дня, перебором и стриком, бенто-блоки (пока в работе) и несколько свайп-страниц.
