@@ -6,6 +6,7 @@ struct WaterCard: View {
     @Environment(\.modelContext) private var context
     @Query private var logs: [WaterLog]
     @AppStorage("goal.water") private var goalMl: Double = 2000
+    @AppStorage("fun.beerMeter") private var beerMeter = false
 
     init(day: Date) {
         self.day = day
@@ -94,7 +95,11 @@ struct WaterCard: View {
         }
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         if Calendar.current.isDateInToday(day) {
-            WaterActivityManager.shared.update(ml: newMl, goal: goalMl)
+            if beerMeter {
+                WaterActivityManager.shared.end()
+            } else {
+                WaterActivityManager.shared.update(ml: newMl, goal: goalMl)
+            }
         }
     }
 }

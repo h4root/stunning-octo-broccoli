@@ -6,6 +6,8 @@ struct RootView: View {
     @AppStorage("hasOnboarded") private var hasOnboarded = false
     @AppStorage("fun.beerMeter") private var beerMeter = false
     @AppStorage("profile.name") private var name = ""
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.modelContext) private var context
     @State private var showOnboarding = false
     @State private var tab: MainTab = .dashboard
 
@@ -77,6 +79,15 @@ struct RootView: View {
         tabs
         .tint(.white)
         .onAppear { showOnboarding = !hasOnboarded }
+        .onChange(of: beerMeter) { _, on in
+            if on { WaterActivityManager.shared.end() }
+            else { BeerActivityManager.shared.end() }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active && beerMeter {
+                BeerActivityManager.shared.reconcileAndSync(context)
+            }
+        }
         .fullScreenCover(isPresented: $showOnboarding) {
             OnboardingView { hasOnboarded = true; showOnboarding = false }
         }

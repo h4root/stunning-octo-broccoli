@@ -65,6 +65,7 @@ struct BeerView: View {
         .background { beerBackground }
         .navigationTitle("Пивометр")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear { BeerActivityManager.shared.reconcileAndSync(context) }
     }
 
     private var palette: [Color] {
@@ -149,12 +150,16 @@ struct BeerView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
             ripples.removeAll { $0.id == ripple.id }
         }
+        BeerActivityManager.shared.sync(count: todayLogs.count + 1, lastBeer: beer)
     }
 
     private func remove(_ beer: Beer) {
         guard let log = todayLogs.first(where: { $0.brand == beer.name }) else { return }
         context.delete(log)
         UINotificationFeedbackGenerator().notificationOccurred(.warning)
+        let remaining = todayLogs.count - 1
+        let last = BeerCatalog.find(todayLogs.first(where: { $0.id != log.id })?.brand ?? "")
+        BeerActivityManager.shared.sync(count: max(remaining, 0), lastBeer: last)
     }
 }
 

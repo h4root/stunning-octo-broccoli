@@ -12,6 +12,9 @@
 		BB0000000000000000000015 /* WaterActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000012 /* WaterActivityAttributes.swift */; };
 		BB0000000000000000000016 /* WaterActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000012 /* WaterActivityAttributes.swift */; };
 		BB0000000000000000000018 /* WaterWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000009 /* WaterWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		BB0000000000000000000022 /* BeerActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000020 /* BeerActivityAttributes.swift */; };
+		BB0000000000000000000023 /* BeerActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000020 /* BeerActivityAttributes.swift */; };
+		BB0000000000000000000024 /* BeerLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000021 /* BeerLiveActivity.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +46,8 @@
 		BB0000000000000000000010 /* WaterWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterWidgetBundle.swift; sourceTree = "<group>"; };
 		BB0000000000000000000011 /* WaterLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterLiveActivity.swift; sourceTree = "<group>"; };
 		BB0000000000000000000012 /* WaterActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterActivityAttributes.swift; sourceTree = "<group>"; };
+		BB0000000000000000000020 /* BeerActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeerActivityAttributes.swift; sourceTree = "<group>"; };
+		BB0000000000000000000021 /* BeerLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeerLiveActivity.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -95,6 +100,8 @@
 				BB0000000000000000000010 /* WaterWidgetBundle.swift */,
 				BB0000000000000000000011 /* WaterLiveActivity.swift */,
 				BB0000000000000000000012 /* WaterActivityAttributes.swift */,
+				BB0000000000000000000020 /* BeerActivityAttributes.swift */,
+				BB0000000000000000000021 /* BeerLiveActivity.swift */,
 			);
 			path = WaterWidget;
 			sourceTree = "<group>";
@@ -202,6 +209,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB0000000000000000000016 /* WaterActivityAttributes.swift in Sources */,
+				BB0000000000000000000023 /* BeerActivityAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -212,6 +220,8 @@
 				BB0000000000000000000013 /* WaterWidgetBundle.swift in Sources */,
 				BB0000000000000000000014 /* WaterLiveActivity.swift in Sources */,
 				BB0000000000000000000015 /* WaterActivityAttributes.swift in Sources */,
+				BB0000000000000000000022 /* BeerActivityAttributes.swift in Sources */,
+				BB0000000000000000000024 /* BeerLiveActivity.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
