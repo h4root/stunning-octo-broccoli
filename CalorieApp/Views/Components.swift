@@ -187,8 +187,20 @@ struct SemiCircleGauge: View {
 
     @State private var flicker = false
 
+    private let over = Color(hex: 0xFF3B30)
+
     private var progress: Double { goal > 0 ? min(consumed / goal, 1) : 0 }
     private var remaining: Double { max(goal - consumed, 0) }
+    private var overshoot: Double { max(consumed - goal, 0) }
+    private var overProgress: Double { goal > 0 ? min(overshoot / goal, 1) : 0 }
+    private var hasOvershoot: Bool { overshoot > 0 }
+
+    private var centerValue: String { hasOvershoot ? "+\(Fmt.kcal(overshoot))" : Fmt.kcal(remaining) }
+    private var centerLabel: String {
+        if hasOvershoot { return "перебор, ккал" }
+        return burning ? "цель закрыта" : "осталось, ккал"
+    }
+    private var accent: Color { hasOvershoot ? over : (burning ? Theme.fire : Theme.accentPink) }
 
     var body: some View {
         ZStack {
@@ -196,7 +208,7 @@ struct SemiCircleGauge: View {
             if burning {
                 Circle()
                     .trim(from: 0, to: 0.5)
-                    .stroke(Theme.fire, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                    .stroke(hasOvershoot ? over : Theme.fire, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                     .rotationEffect(.degrees(180))
                     .padding(lineWidth / 2 + 2)
                     .blur(radius: flicker ? 26 : 16)
@@ -216,21 +228,29 @@ struct SemiCircleGauge: View {
                             style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                     .rotationEffect(.degrees(180))
                     .shadow(color: (burning ? Theme.fire : Theme.accentPink).opacity(0.5), radius: 8)
+
+                if hasOvershoot {
+                    Circle()
+                        .trim(from: 0, to: 0.5 * overProgress)
+                        .stroke(over, style: StrokeStyle(lineWidth: lineWidth * 0.42, lineCap: .round))
+                        .rotationEffect(.degrees(180))
+                        .shadow(color: over.opacity(0.6), radius: 6)
+                }
             }
             .padding(lineWidth / 2 + 2)
 
             VStack(spacing: 3) {
-                Image(systemName: "flame.fill")
+                Image(systemName: hasOvershoot ? "exclamationmark.triangle.fill" : "flame.fill")
                     .font(.system(size: 28))
-                    .foregroundStyle(burning ? Theme.fire : Theme.accentPink)
+                    .foregroundStyle(accent)
                     .scaleEffect(burning && flicker ? 1.12 : 1)
-                Text(Fmt.kcal(remaining))
+                Text(centerValue)
                     .font(.system(size: 40, weight: .bold, design: .rounded))
                     .foregroundStyle(Theme.textPrimary)
                     .contentTransition(.numericText())
-                Text(burning ? "цель закрыта" : "осталось, ккал")
+                Text(centerLabel)
                     .font(.caption)
-                    .foregroundStyle(burning ? Theme.fire : Theme.textSecondary)
+                    .foregroundStyle(burning || hasOvershoot ? accent : Theme.textSecondary)
             }
             .multilineTextAlignment(.center)
             .offset(y: -16)
