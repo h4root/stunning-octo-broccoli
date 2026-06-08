@@ -32,6 +32,8 @@ struct ProfileView: View {
     @AppStorage("ai.apiKey") private var aiKey = ""
     @AppStorage("ai.baseURL") private var aiBaseURL = ""
     @AppStorage("ai.model") private var aiModel = ""
+    @AppStorage("fun.beerMeter") private var beerMeter = false
+    @AppStorage("fun.beerGoal") private var beerGoal = 5.0
 
     @State private var editing: ProfileField?
     @State private var importingWeight = false
@@ -57,6 +59,7 @@ struct ProfileView: View {
                 aiSection
                 healthBottomSection
                 resetSection
+                funSection
             }
             .darkForm()
             .contentMargins(.bottom, 110, for: .scrollContent)
@@ -293,6 +296,35 @@ struct ProfileView: View {
                     .foregroundStyle(.red)
             }
             .buttonStyle(.pressable)
+        }
+        .listRowBackground(rowBackground)
+    }
+
+    private var funSection: some View {
+        Section {
+            Toggle(isOn: $beerMeter.animation(.spring(response: 0.4, dampingFraction: 0.8))) {
+                Label("Пивометр 🍺", systemImage: "mug.fill")
+                    .foregroundStyle(Theme.textPrimary)
+            }
+            .tint(Color(hex: 0xF2A900))
+
+            if beerMeter {
+                HStack {
+                    Text("Норма за вечер").foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    Stepper(value: $beerGoal, in: 1...20, step: 1) {
+                        Text("\(Fmt.kcal(beerGoal)) бут.")
+                            .monospacedDigit()
+                            .foregroundStyle(Theme.textSecondary)
+                    }
+                    .fixedSize()
+                }
+            }
+        } header: {
+            sectionHeader("Развлечения")
+        } footer: {
+            Text("Шуточный счётчик выпитого пива со спидометром. Появится отдельной вкладкой снизу.")
+                .foregroundStyle(Theme.textTertiary)
         }
         .listRowBackground(rowBackground)
     }

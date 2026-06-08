@@ -101,6 +101,28 @@ final class WaterLog {
 }
 
 @Model
+final class BeerLog {
+    var id: UUID = UUID()
+    var createdAt: Date = Date()
+    var day: Date = Calendar.current.startOfDay(for: Date())
+    var brand: String = ""
+    var ml: Double = 500
+    var abv: Double = 4.5
+
+    init(day: Date, brand: String, ml: Double = 500, abv: Double = 4.5) {
+        self.id = UUID()
+        self.createdAt = Date()
+        self.day = Calendar.current.startOfDay(for: day)
+        self.brand = brand
+        self.ml = ml
+        self.abv = abv
+    }
+
+    var bottles: Double { ml / 500.0 }
+    var alcoholGrams: Double { ml * (abv / 100.0) * 0.789 }
+}
+
+@Model
 final class SavedFood {
     @Attribute(.unique) var id: UUID = UUID()
     var name: String = ""

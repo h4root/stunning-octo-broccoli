@@ -1,9 +1,10 @@
 import SwiftUI
 
-enum MainTab { case dashboard, activity, profile }
+enum MainTab { case dashboard, activity, beer, profile }
 
 struct RootView: View {
     @AppStorage("hasOnboarded") private var hasOnboarded = false
+    @AppStorage("fun.beerMeter") private var beerMeter = false
     @AppStorage("profile.name") private var name = ""
     @State private var showOnboarding = false
     @State private var tab: MainTab = .dashboard
@@ -132,6 +133,14 @@ struct RootView: View {
             }
             .tabItem { Label("Активность", systemImage: "figure.run") }
             .tag(MainTab.activity)
+
+            if beerMeter {
+                NavigationStack {
+                    BeerView()
+                }
+                .tabItem { Label("Пивометр", systemImage: "mug.fill") }
+                .tag(MainTab.beer)
+            }
 
             ProfileView()
                 .tabItem { Label("Профиль", systemImage: "person.fill") }
