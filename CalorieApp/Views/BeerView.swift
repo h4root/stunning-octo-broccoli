@@ -45,11 +45,15 @@ struct BeerView: View {
                 streakBadge
                 BeerGauge(bottles: bottles, goal: goalBottles, color: gold)
                 statsRow
-                if !todayLogs.isEmpty { undoRow }
-                catalogSection("Пивоварни Бочкарёв 🍺", BeerCatalog.bochkarev)
-                catalogSection("Балтика 🍺", BeerCatalog.baltika)
-                catalogSection("Пшеничные · Бельгия 🌾", BeerCatalog.wheat)
-                catalogSection("Другие марки", BeerCatalog.others)
+                BeerCatalogSection(title: "Пивоварни Бочкарёв 🍺", beers: BeerCatalog.bochkarev,
+                                   gold: gold, initiallyExpanded: true,
+                                   count: countFor, add: add, remove: remove)
+                BeerCatalogSection(title: "Балтика 🍺", beers: BeerCatalog.baltika,
+                                   gold: gold, count: countFor, add: add, remove: remove)
+                BeerCatalogSection(title: "Пшеничные · Бельгия 🌾", beers: BeerCatalog.wheat,
+                                   gold: gold, count: countFor, add: add, remove: remove)
+                BeerCatalogSection(title: "Другие марки", beers: BeerCatalog.others,
+                                   gold: gold, count: countFor, add: add, remove: remove)
                 disclaimer
             }
             .padding(.horizontal, 20)
@@ -124,64 +128,8 @@ struct BeerView: View {
         .glassCard(cornerRadius: 18)
     }
 
-    private var undoRow: some View {
-        Button {
-            if let last = todayLogs.first { context.delete(last) }
-            UINotificationFeedbackGenerator().notificationOccurred(.warning)
-        } label: {
-            HStack(spacing: 8) {
-                Image(systemName: "arrow.uturn.backward")
-                Text("Убрать последнюю").fontWeight(.semibold)
-            }
-            .foregroundStyle(Theme.textSecondary)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .glassCard(cornerRadius: 16)
-        }
-        .buttonStyle(.pressable)
-    }
-
-    private func catalogSection(_ title: String, _ beers: [Beer]) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(title).font(.subheadline.weight(.semibold))
-                .foregroundStyle(Theme.textSecondary).padding(.horizontal, 4)
-            VStack(spacing: 0) {
-                ForEach(beers) { beerRow($0) }
-            }
-            .glassCard(cornerRadius: 18)
-        }
-    }
-
-    private func beerRow(_ beer: Beer) -> some View {
-        let count = todayLogs.filter { $0.brand == beer.name }.count
-        return HStack(spacing: 12) {
-            ZStack {
-                Circle().fill(beer.color.opacity(0.22))
-                Image(systemName: "mug.fill").font(.system(size: 18)).foregroundStyle(beer.color)
-            }
-            .frame(width: 42, height: 42)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(beer.name).foregroundStyle(Theme.textPrimary).lineLimit(1)
-                Text("\(Fmt.g(beer.abv))% · \(Fmt.kcal(beer.kcalPerBottle)) ккал / 0,5 л")
-                    .font(.caption).foregroundStyle(Theme.textSecondary)
-            }
-            Spacer()
-            if count > 0 {
-                Text("×\(count)")
-                    .font(.subheadline.weight(.bold)).foregroundStyle(gold)
-                    .monospacedDigit().contentTransition(.numericText())
-            }
-            Button { add(beer) } label: {
-                Image(systemName: "plus")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundStyle(.black)
-                    .frame(width: 34, height: 34)
-                    .background(gold, in: Circle())
-            }
-            .buttonStyle(.pressable)
-        }
-        .padding(.vertical, 10).padding(.horizontal, 14)
+    private func countFor(_ beer: Beer) -> Int {
+        todayLogs.filter { $0.brand == beer.name }.count
     }
 
     private var disclaimer: some View {
@@ -201,6 +149,121 @@ struct BeerView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
             ripples.removeAll { $0.id == ripple.id }
         }
+    }
+
+    private func remove(_ beer: Beer) {
+        guard let log = todayLogs.first(where: { $0.brand == beer.name }) else { return }
+        context.delete(log)
+        UINotificationFeedbackGenerator().notificationOccurred(.warning)
+    }
+}
+
+private struct BeerCatalogSection: View {
+    let title: String
+    let beers: [Beer]
+    let gold: Color
+    var initiallyExpanded: Bool = false
+    let count: (Beer) -> Int
+    let add: (Beer) -> Void
+    let remove: (Beer) -> Void
+
+    @State private var expanded: Bool
+
+    init(title: String, beers: [Beer], gold: Color, initiallyExpanded: Bool = false,
+         count: @escaping (Beer) -> Int, add: @escaping (Beer) -> Void, remove: @escaping (Beer) -> Void) {
+        self.title = title
+        self.beers = beers
+        self.gold = gold
+        self.initiallyExpanded = initiallyExpanded
+        self.count = count
+        self.add = add
+        self.remove = remove
+        _expanded = State(initialValue: initiallyExpanded)
+    }
+
+    private var addedTotal: Int { beers.reduce(0) { $0 + count($1) } }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Button {
+                withAnimation(.snappy(duration: 0.3)) { expanded.toggle() }
+            } label: {
+                HStack(spacing: 10) {
+                    Text(title)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    if addedTotal > 0 {
+                        Text("×\(addedTotal)")
+                            .font(.caption.weight(.bold)).foregroundStyle(.black)
+                            .monospacedDigit()
+                            .padding(.horizontal, 8).padding(.vertical, 3)
+                            .background(gold, in: Capsule())
+                    }
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(Theme.textSecondary)
+                        .rotationEffect(.degrees(expanded ? 90 : 0))
+                }
+                .padding(.vertical, 16).padding(.horizontal, 16)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+
+            if expanded {
+                VStack(spacing: 0) {
+                    Divider().overlay(Theme.glassStroke)
+                    ForEach(beers) { row($0) }
+                }
+            }
+        }
+        .glassCard(cornerRadius: 18)
+    }
+
+    private func row(_ beer: Beer) -> some View {
+        let c = count(beer)
+        return HStack(spacing: 12) {
+            ZStack {
+                Circle().fill(beer.color.opacity(0.22))
+                Image(systemName: "mug.fill").font(.system(size: 17)).foregroundStyle(beer.color)
+            }
+            .frame(width: 40, height: 40)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(beer.name).foregroundStyle(Theme.textPrimary).lineLimit(1)
+                Text("\(Fmt.g(beer.abv))% · \(Fmt.kcal(beer.kcalPerBottle)) ккал / 0,5 л")
+                    .font(.caption).foregroundStyle(Theme.textSecondary)
+            }
+            Spacer(minLength: 6)
+
+            HStack(spacing: 9) {
+                Button { remove(beer) } label: {
+                    Image(systemName: "minus")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(c > 0 ? Theme.textPrimary : Theme.textTertiary)
+                        .frame(width: 32, height: 32)
+                        .background(Color.white.opacity(0.08), in: Circle())
+                }
+                .buttonStyle(.pressable)
+                .disabled(c == 0)
+
+                Text("\(c)")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(c > 0 ? gold : Theme.textTertiary)
+                    .monospacedDigit().frame(minWidth: 14)
+                    .contentTransition(.numericText())
+
+                Button { add(beer) } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(.black)
+                        .frame(width: 32, height: 32)
+                        .background(gold, in: Circle())
+                }
+                .buttonStyle(.pressable)
+            }
+        }
+        .padding(.vertical, 9).padding(.horizontal, 14)
     }
 }
 
