@@ -197,9 +197,10 @@ private struct DashboardDayContent: View {
     private var dayComplete: Bool { goalKcal > 0 && totals.kcal >= goalKcal }
 
     var body: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: 14) {
             goalRow
-            summaryCard
+            gaugeCard
+            macroMosaic
             WaterCard(day: day)
             if !bentoRaw.isEmpty {
                 BentoGrid(pageIndex: 0, totals: totals, goalKcal: goalKcal, goalProtein: goalProtein,
@@ -242,20 +243,27 @@ private struct DashboardDayContent: View {
         }
     }
 
-    private var summaryCard: some View {
-        VStack(spacing: 20) {
-            SemiCircleGauge(consumed: totals.kcal, goal: goalKcal, burning: dayComplete)
-                .padding(.top, 8)
+    private var gaugeCard: some View {
+        SemiCircleGauge(consumed: totals.kcal, goal: goalKcal, burning: dayComplete)
+            .padding(.top, 8)
+            .padding(22)
+            .frame(maxWidth: .infinity)
+            .glassCard(cornerRadius: 28)
+    }
 
-            VStack(spacing: 16) {
-                MacroBarWide(icon: "fish.fill", title: "Белки", consumed: totals.protein, goal: goalProtein, color: MacroColor.protein, burning: dayComplete)
-                MacroBarWide(icon: "drop.fill", title: "Жиры", consumed: totals.fat, goal: goalFat, color: MacroColor.fat, burning: dayComplete)
-                MacroBarWide(icon: "leaf.fill", title: "Углеводы", consumed: totals.carbs, goal: goalCarbs, color: MacroColor.carbs, burning: dayComplete)
-            }
+    private var macroMosaic: some View {
+        HStack(spacing: 12) {
+            macroTile("Белки", totals.protein, goalProtein, MacroColor.protein)
+            macroTile("Жиры", totals.fat, goalFat, MacroColor.fat)
+            macroTile("Углеводы", totals.carbs, goalCarbs, MacroColor.carbs)
         }
-        .padding(22)
-        .frame(maxWidth: .infinity)
-        .glassCard(cornerRadius: 26)
+    }
+
+    private func macroTile(_ title: String, _ consumed: Double, _ goal: Double, _ color: Color) -> some View {
+        MacroColumn(title: title, consumed: consumed, goal: goal, color: color)
+            .padding(.vertical, 16)
+            .frame(maxWidth: .infinity)
+            .glassCard(cornerRadius: 22)
     }
 
     private var mealsSection: some View {
