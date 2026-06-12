@@ -1,14 +1,10 @@
-import SwiftUI
+import Foundation
 
 struct DailyGoals {
     var kcal: Double
     var protein: Double
     var fat: Double
     var carbs: Double
-}
-
-extension EnvironmentValues {
-
 }
 
 enum GoalsDefaults {

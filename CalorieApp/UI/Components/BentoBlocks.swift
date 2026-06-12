@@ -79,22 +79,6 @@ extension Array where Element == BentoItem {
 
 func bentoKey(_ page: Int) -> String { "bento.blocks.\(page)" }
 
-func computeStreak(days: Set<Date>) -> Int {
-    let cal = Calendar.current
-    var d = cal.startOfDay(for: Date())
-    if !days.contains(d) {
-        guard let y = cal.date(byAdding: .day, value: -1, to: d), days.contains(y) else { return 0 }
-        d = y
-    }
-    var streak = 0
-    while days.contains(d) {
-        streak += 1
-        guard let p = cal.date(byAdding: .day, value: -1, to: d) else { break }
-        d = p
-    }
-    return streak
-}
-
 // MARK: - Сетка блоков
 
 struct BentoGrid: View {

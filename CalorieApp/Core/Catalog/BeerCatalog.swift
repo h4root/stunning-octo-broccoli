@@ -1,4 +1,4 @@
-import SwiftUI
+import Foundation
 
 struct Beer: Identifiable, Hashable {
     let name: String
@@ -8,7 +8,6 @@ struct Beer: Identifiable, Hashable {
     let colorHex: UInt
     var id: String { name }
 
-    var color: Color { Color(hex: colorHex) }
     var kcalPerBottle: Double { kcalPer100 * 5 }
 }
 
