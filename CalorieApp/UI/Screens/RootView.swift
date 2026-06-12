@@ -53,6 +53,17 @@ struct RootView: View {
         )
     }
 
+    private var orderedTabs: [MainTab] {
+        beerMeter ? [.dashboard, .activity, .beer, .profile] : [.dashboard, .activity, .profile]
+    }
+
+    private func swipeTab(_ dir: Int) {
+        guard let i = orderedTabs.firstIndex(of: tab) else { return }
+        let j = i + dir
+        guard orderedTabs.indices.contains(j) else { return }
+        withAnimation(.easeInOut(duration: 0.2)) { tab = orderedTabs[j] }
+    }
+
     @ToolbarContentBuilder
     private var greetingToolbarItem: some ToolbarContent {
         if #available(iOS 26.0, *) {
@@ -157,6 +168,14 @@ struct RootView: View {
                 .tabItem { Label("Профиль", systemImage: "person.fill") }
                 .tag(MainTab.profile)
         }
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 30)
+                .onEnded { v in
+                    guard abs(v.translation.width) > abs(v.translation.height) * 1.5,
+                          abs(v.translation.width) > 70 else { return }
+                    swipeTab(v.translation.width < 0 ? 1 : -1)
+                }
+        )
     }
 
     private func presentPending() {

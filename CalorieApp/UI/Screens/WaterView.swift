@@ -50,16 +50,24 @@ struct WaterCard: View {
             .frame(height: 10)
 
             HStack(spacing: 10) {
-                addButton(250)
+                Spacer()
                 Button { add(-250) } label: {
                     Image(systemName: "arrow.uturn.backward")
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Theme.textSecondary)
-                        .frame(width: 44, height: 38)
+                        .frame(width: 46, height: 40)
                         .background(Color.white.opacity(0.06), in: Capsule())
                 }
                 .buttonStyle(.pressable)
                 .disabled(ml <= 0)
+                Button { add(250) } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(.black)
+                        .frame(width: 56, height: 40)
+                        .background(Theme.acid, in: Capsule())
+                }
+                .buttonStyle(.pressable)
             }
         }
         .padding(18)
@@ -70,18 +78,6 @@ struct WaterCard: View {
                 .stroke(Theme.acid.opacity(done ? 0.55 : 0), lineWidth: 1.5)
         )
         .animation(.spring(response: 0.5, dampingFraction: 0.7), value: ml)
-    }
-
-    private func addButton(_ amount: Double) -> some View {
-        Button { add(amount) } label: {
-            Text("+\(Fmt.kcal(amount)) мл")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.black)
-                .frame(maxWidth: .infinity)
-                .frame(height: 38)
-                .background(Theme.acid, in: Capsule())
-        }
-        .buttonStyle(.pressable)
     }
 
     private func add(_ amount: Double) {

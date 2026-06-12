@@ -3,166 +3,33 @@ import SwiftData
 
 struct DashboardView: View {
     var onEditGoal: () -> Void = {}
-    @AppStorage("dashboard.pageCount") private var pageCount = 1
-    @AppStorage("dashboard.page") private var storedPage = 0
     @AppStorage("dashboard.goHome") private var goHome = 0
-    @State private var scrollID: Int? = 0
     @State private var selectedDay: Date = Calendar.current.startOfDay(for: Date())
 
     private func storeAddDay(_ day: Date) {
         UserDefaults.standard.set(day.timeIntervalSince1970, forKey: "dashboard.addDay")
     }
 
-    private var pageBinding: Binding<Int> {
-        Binding(get: { scrollID ?? 0 }, set: { scrollID = $0 })
-    }
-
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack {
             AppBackground()
-
-            ScrollView(.horizontal) {
-                LazyHStack(spacing: 0) {
-                    page0
-                        .containerRelativeFrame(.horizontal)
-                        .id(0)
-                    ForEach(Array(1..<max(pageCount, 1)), id: \.self) { i in
-                        ExtraDashboardPage(index: i)
-                            .containerRelativeFrame(.horizontal)
-                            .id(i)
-                    }
+            ScrollView {
+                VStack(spacing: 0) {
+                    DateStrip(selected: $selectedDay)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 4)
+                        .padding(.bottom, 8)
+                    DashboardDayContent(day: selectedDay, onEditGoal: onEditGoal)
                 }
-                .scrollTargetLayout()
             }
-            .scrollTargetBehavior(.paging)
-            .scrollPosition(id: $scrollID)
             .scrollIndicators(.hidden)
-
-            DashboardPageDots(page: pageBinding, pageCount: $pageCount)
-                .padding(.bottom, 10)
         }
         .onAppear {
-            scrollID = min(storedPage, max(pageCount - 1, 0))
             selectedDay = Calendar.current.startOfDay(for: Date())
             storeAddDay(selectedDay)
         }
         .onChange(of: selectedDay) { _, d in storeAddDay(d) }
-        .onChange(of: scrollID) { _, p in if let p { storedPage = p } }
-        .onChange(of: goHome) { _, _ in
-            if (scrollID ?? 0) != 0 { scrollID = 0 }
-        }
-        .onChange(of: pageCount) { _, c in if (scrollID ?? 0) > c - 1 { scrollID = max(c - 1, 0) } }
-    }
-
-    private var page0: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                DateStrip(selected: $selectedDay)
-                    .padding(.horizontal, 16)
-                    .padding(.top, 4)
-                    .padding(.bottom, 8)
-                DashboardDayContent(day: selectedDay, onEditGoal: onEditGoal)
-            }
-        }
-        .scrollIndicators(.hidden)
-    }
-}
-
-private struct DashboardPageDots: View {
-    @Binding var page: Int
-    @Binding var pageCount: Int
-
-    var body: some View {
-        HStack(spacing: 10) {
-            ForEach(0..<pageCount, id: \.self) { i in
-                Circle()
-                    .fill(i == page ? Theme.accentPink : Color.white.opacity(0.28))
-                    .frame(width: 7, height: 7)
-                    .onTapGesture { page = i }
-                    .onLongPressGesture {
-                        if i == pageCount - 1 && i > 0 { removeLast() }
-                    }
-            }
-            if pageCount < 3 {
-                Button {
-                    pageCount += 1
-                    page = pageCount - 1
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(Theme.textSecondary)
-                        .frame(width: 16, height: 16)
-                        .background(Color.white.opacity(0.12), in: Circle())
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 9)
-        .background(.ultraThinMaterial, in: Capsule())
-        .overlay(Capsule().stroke(Theme.glassStroke, lineWidth: 1))
-    }
-
-    private func removeLast() {
-        guard pageCount > 1 else { return }
-        UserDefaults.standard.removeObject(forKey: bentoKey(pageCount - 1))
-        pageCount -= 1
-        if page > pageCount - 1 { page = pageCount - 1 }
-    }
-}
-
-private struct ExtraDashboardPage: View {
-    let index: Int
-    @Query private var entries: [FoodEntry]
-    @Query(sort: \FoodEntry.day, order: .reverse) private var allEntries: [FoodEntry]
-
-    @AppStorage("goal.kcal") private var goalKcal: Double = GoalsDefaults.kcal
-    @AppStorage("goal.protein") private var goalProtein: Double = GoalsDefaults.protein
-    @AppStorage("goal.fat") private var goalFat: Double = GoalsDefaults.fat
-    @AppStorage("goal.carbs") private var goalCarbs: Double = GoalsDefaults.carbs
-    @AppStorage private var bentoRaw: String
-
-    init(index: Int) {
-        self.index = index
-        let start = Calendar.current.startOfDay(for: Date())
-        _entries = Query(
-            filter: #Predicate<FoodEntry> { $0.day == start },
-            sort: \FoodEntry.createdAt, order: .reverse
-        )
-        _bentoRaw = AppStorage(wrappedValue: "", bentoKey(index))
-    }
-
-    private var totals: DayTotals { DayTotals(entries: entries) }
-
-    var body: some View {
-        ScrollView {
-            VStack(spacing: 18) {
-                if bentoRaw.isEmpty {
-                    VStack(spacing: 8) {
-                        Image(systemName: "square.grid.2x2")
-                            .font(.system(size: 30))
-                            .foregroundStyle(Theme.textTertiary)
-                        Text("Пустой экран")
-                            .font(.headline)
-                            .foregroundStyle(Theme.textSecondary)
-                        Text("Нажмите «+» → «Добавить блок»")
-                            .font(.subheadline)
-                            .foregroundStyle(Theme.textTertiary)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 60)
-                    .glassCard(cornerRadius: 20)
-                } else {
-                    BentoGrid(pageIndex: index, totals: totals, goalKcal: goalKcal,
-                              goalProtein: goalProtein, goalFat: goalFat, goalCarbs: goalCarbs,
-                              streak: computeStreak(days: Set(allEntries.map { $0.day })))
-                }
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 16)
-            .padding(.bottom, 130)
-        }
-        .scrollIndicators(.hidden)
+        .onChange(of: goHome) { _, _ in selectedDay = Calendar.current.startOfDay(for: Date()) }
     }
 }
 
@@ -238,8 +105,6 @@ private struct DashboardDayContent: View {
             .buttonStyle(.pressable)
 
             Spacer()
-
-            StreakIndicator(days: completedStreak(), complete: dayComplete)
         }
     }
 
