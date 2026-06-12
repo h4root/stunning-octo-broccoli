@@ -9,6 +9,7 @@ struct CalorieAppApp: App {
                 .preferredColorScheme(.dark)
                 .tint(Theme.accentPink)
         }
-        .modelContainer(for: [FoodEntry.self, SavedFood.self, WaterLog.self, BeerLog.self])
+        .modelContainer(for: [FoodEntry.self, SavedFood.self, WaterLog.self, BeerLog.self,
+                              CustomCounter.self, CustomCounterLog.self])
     }
 }

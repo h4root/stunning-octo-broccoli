@@ -32,6 +32,7 @@ struct RootView: View {
     @State private var pendingInfo: FoodInfo?
     @State private var manualPrefill: FoodInfo?
     @State private var showBentoAdd = false
+    @State private var showCounterBuilder = false
     @AppStorage("dashboard.page") private var dashboardPage = 0
     @AppStorage("dashboard.goHome") private var goHome = 0
     @AppStorage("dashboard.addDay") private var addDayStored = Calendar.current.startOfDay(for: Date()).timeIntervalSince1970
@@ -116,6 +117,7 @@ struct RootView: View {
         .sheet(item: $confirmInfo) { ConfirmFoodView(info: $0, day: Date(timeIntervalSince1970: addDayStored)) }
         .sheet(isPresented: $showGoalPicker) { GoalPickerSheet() }
         .sheet(isPresented: $showBentoAdd) { BentoAddSheet(pageIndex: dashboardPage) }
+        .sheet(isPresented: $showCounterBuilder) { CustomCounterBuilderSheet(editing: nil) }
     }
 
     private var tabs: some View {
@@ -140,6 +142,9 @@ struct RootView: View {
                                 Divider()
                                 Button { showBentoAdd = true } label: {
                                     Label("Добавить блок", systemImage: "square.grid.2x2")
+                                }
+                                Button { showCounterBuilder = true } label: {
+                                    Label("Создать свой блок", systemImage: "slider.horizontal.3")
                                 }
                             } label: {
                                 Image(systemName: "plus")

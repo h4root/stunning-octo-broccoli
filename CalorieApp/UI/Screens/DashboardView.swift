@@ -38,6 +38,7 @@ private struct DashboardDayContent: View {
     var onEditGoal: () -> Void
     @Query private var entries: [FoodEntry]
     @Query(sort: \FoodEntry.day, order: .reverse) private var allEntries: [FoodEntry]
+    @Query(sort: \CustomCounter.sortIndex) private var customCounters: [CustomCounter]
     @Environment(\.modelContext) private var context
 
     @AppStorage("goal.kcal") private var goalKcal: Double = GoalsDefaults.kcal
@@ -69,6 +70,7 @@ private struct DashboardDayContent: View {
             gaugeCard
             macroMosaic
             WaterCard(day: day)
+            ForEach(customCounters) { CustomCounterCard(counter: $0, day: day) }
             if !bentoRaw.isEmpty {
                 BentoGrid(pageIndex: 0, totals: totals, goalKcal: goalKcal, goalProtein: goalProtein,
                           goalFat: goalFat, goalCarbs: goalCarbs, streak: completedStreak())

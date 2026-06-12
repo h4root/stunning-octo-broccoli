@@ -123,6 +123,40 @@ final class BeerLog {
 }
 
 @Model
+final class CustomCounter {
+    var id: UUID = UUID()
+    var name: String = ""
+    var unit: String = "шт"
+    var amounts: [Double] = [1]
+    var goal: Double = 0
+    var createdAt: Date = Date()
+    var sortIndex: Int = 0
+
+    init(name: String, unit: String, amounts: [Double], goal: Double = 0, sortIndex: Int = 0) {
+        self.id = UUID()
+        self.name = name
+        self.unit = unit
+        self.amounts = amounts
+        self.goal = goal
+        self.createdAt = Date()
+        self.sortIndex = sortIndex
+    }
+}
+
+@Model
+final class CustomCounterLog {
+    var counterID: UUID = UUID()
+    var day: Date = Calendar.current.startOfDay(for: Date())
+    var value: Double = 0
+
+    init(counterID: UUID, day: Date, value: Double) {
+        self.counterID = counterID
+        self.day = Calendar.current.startOfDay(for: day)
+        self.value = value
+    }
+}
+
+@Model
 final class SavedFood {
     @Attribute(.unique) var id: UUID = UUID()
     var name: String = ""
