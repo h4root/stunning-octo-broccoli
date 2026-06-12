@@ -16,7 +16,7 @@ struct WaterCard: View {
 
     private var ml: Double { WaterTracker.total(logs) }
     private var progress: Double { WaterTracker.progress(ml: ml, goal: goalMl) }
-    private let water = Color(hex: 0x4FC3F7)
+    private let water = Color.white
 
     private var done: Bool { WaterTracker.done(ml: ml, goal: goalMl) }
 
@@ -41,10 +41,10 @@ struct WaterCard: View {
                 ZStack(alignment: .leading) {
                     Capsule().fill(Color.white.opacity(0.10))
                     Capsule()
-                        .fill(LinearGradient(colors: [water.opacity(0.7), water],
-                                             startPoint: .leading, endPoint: .trailing))
+                        .fill(done ? AnyShapeStyle(Theme.acid) : AnyShapeStyle(LinearGradient(colors: [water.opacity(0.55), water],
+                                             startPoint: .leading, endPoint: .trailing)))
                         .frame(width: max(8, geo.size.width * progress))
-                        .shadow(color: done ? water.opacity(0.7) : .clear, radius: 6)
+                        .shadow(color: done ? Theme.acid.opacity(0.7) : .clear, radius: 6)
                 }
             }
             .frame(height: 10)
@@ -68,7 +68,7 @@ struct WaterCard: View {
         .glassCard(cornerRadius: 22)
         .overlay(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(water.opacity(done ? 0.55 : 0), lineWidth: 1.5)
+                .stroke(Theme.acid.opacity(done ? 0.55 : 0), lineWidth: 1.5)
         )
         .animation(.spring(response: 0.5, dampingFraction: 0.7), value: ml)
     }
@@ -77,11 +77,10 @@ struct WaterCard: View {
         Button { add(amount) } label: {
             Text("+\(Fmt.kcal(amount)) мл")
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(.black)
                 .frame(maxWidth: .infinity)
                 .frame(height: 38)
-                .background(LinearGradient(colors: [water, water.opacity(0.8)],
-                                          startPoint: .top, endPoint: .bottom), in: Capsule())
+                .background(Theme.acid, in: Capsule())
         }
         .buttonStyle(.pressable)
     }

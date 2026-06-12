@@ -12,10 +12,10 @@ enum Fmt {
 }
 
 enum MacroColor {
-    static let kcal = Theme.accentPink
-    static let protein = Theme.blue
-    static let fat = Theme.amber
-    static let carbs = Theme.green
+    static let kcal = Theme.acid
+    static let protein = Color.white.opacity(0.92)
+    static let fat = Color.white.opacity(0.60)
+    static let carbs = Color.white.opacity(0.38)
 }
 
 struct ProgressRing: View {
@@ -187,7 +187,7 @@ struct SemiCircleGauge: View {
 
     @State private var flicker = false
 
-    private let over = Color(hex: 0xFF3B30)
+    private let over = Color.white
 
     private var progress: Double { goal > 0 ? min(consumed / goal, 1) : 0 }
     private var remaining: Double { max(goal - consumed, 0) }

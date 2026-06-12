@@ -15,40 +15,41 @@ extension Color {
 
 enum Theme {
 
-    static let bgTop = Color(hex: 0x1C1722)
-    static let bgBottom = Color(hex: 0x0C0A10)
+    static let acid = Color(hex: 0xCCFF00)
+
+    static let bgTop = Color(hex: 0x171717)
+    static let bgBottom = Color(hex: 0x000000)
 
     static let card = Color.white.opacity(0.05)
     static let cardElevated = Color.white.opacity(0.08)
 
-    static let glassStroke = Color.white.opacity(0.10)
+    static let glassStroke = Color.white.opacity(0.14)
     static let glassFill = Color.white.opacity(0.05)
 
     static let textPrimary = Color.white
     static let textSecondary = Color.white.opacity(0.55)
     static let textTertiary = Color.white.opacity(0.32)
 
-    static let accentPink = Color(hex: 0xFF7AB6)
-    static let accentPurple = Color(hex: 0xC77DFF)
-    static let lime = Color(hex: 0xC8F26B)
-    static let blue = Color(hex: 0x7AB8FF)
-    static let amber = Color(hex: 0xFFCE6B)
-    static let green = Color(hex: 0x9BE56B)
+    static let accentPink = acid
+    static let accentPurple = acid
+    static let lime = Color.white.opacity(0.85)
+    static let blue = Color.white.opacity(0.85)
+    static let amber = acid
+    static let green = Color.white.opacity(0.85)
 
     static let accentGradient = LinearGradient(
-        colors: [accentPurple, accentPink],
+        colors: [Color(hex: 0xDDFF66), Color(hex: 0xAEEA00)],
         startPoint: .topLeading, endPoint: .bottomTrailing
     )
 
     static let warmGlow = LinearGradient(
-        colors: [Color(hex: 0xE08AC6), Color(hex: 0xF0A878)],
+        colors: [Color(hex: 0xDDFF66), Color(hex: 0xAEEA00)],
         startPoint: .topLeading, endPoint: .bottomTrailing
     )
 
-    // «Огонь» — режим закрытого дня (полный стрик)
-    static let fire = Color(hex: 0xFF6A00)
+    static let fire = acid
     static let fireGradient = LinearGradient(
-        colors: [Color(hex: 0xFFC23D), Color(hex: 0xFF4D00)],
+        colors: [Color(hex: 0xE6FF7A), Color(hex: 0xB6F000)],
         startPoint: .topLeading, endPoint: .bottomTrailing
     )
 }
@@ -74,18 +75,8 @@ struct AppBackground: View {
         ZStack {
             LinearGradient(colors: [Theme.bgTop, Theme.bgBottom],
                            startPoint: .top, endPoint: .bottom)
-
-            Circle()
-                .fill(Theme.accentPurple.opacity(0.35))
-                .frame(width: 320, height: 320)
-                .blur(radius: 120)
-                .offset(x: -120, y: -260)
-
-            Circle()
-                .fill(Theme.accentPink.opacity(0.30))
-                .frame(width: 360, height: 360)
-                .blur(radius: 140)
-                .offset(x: 150, y: 320)
+            RadialGradient(colors: [Color.white.opacity(0.05), .clear],
+                           center: .top, startRadius: 0, endRadius: 460)
         }
         .ignoresSafeArea()
     }
@@ -213,15 +204,24 @@ struct LavaLampBackground: View {
 
 struct GlassCard: ViewModifier {
     var cornerRadius: CGFloat = 24
-    var strokeOpacity: Double = 0.10
+    var strokeOpacity: Double = 0.12
 
     func body(content: Content) -> some View {
-        content
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .stroke(Color.white.opacity(strokeOpacity), lineWidth: 1)
-            )
+        if FeatureFlags.liquidGlass, #available(iOS 26.0, *) {
+            content
+                .glassEffect(.regular, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .stroke(Color.white.opacity(strokeOpacity), lineWidth: 0.5)
+                )
+        } else {
+            content
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .stroke(Color.white.opacity(strokeOpacity), lineWidth: 1)
+                )
+        }
     }
 }
 
@@ -232,7 +232,7 @@ extension View {
 }
 
 enum FeatureFlags {
-    static let liquidGlass = false
+    static let liquidGlass = true
 }
 
 @available(iOS 26.0, *)
