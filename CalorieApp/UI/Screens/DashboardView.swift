@@ -285,7 +285,7 @@ private struct DashboardDayContent: View {
                     .contextMenu {
                         Button { editingEntry = entry } label: { Label("Изменить", systemImage: "pencil") }
                         Button(role: .destructive) {
-                            withAnimation { context.delete(entry) }
+                            withAnimation { FoodLog.delete(entry, context: context) }
                         } label: { Label("Удалить", systemImage: "trash") }
                     }
                     .transition(.move(edge: .top).combined(with: .opacity))
