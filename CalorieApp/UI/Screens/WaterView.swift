@@ -14,11 +14,11 @@ struct WaterCard: View {
         _logs = Query(filter: #Predicate<WaterLog> { $0.day == start })
     }
 
-    private var ml: Double { logs.reduce(0) { $0 + $1.ml } }
-    private var progress: Double { goalMl > 0 ? min(ml / goalMl, 1) : 0 }
+    private var ml: Double { WaterTracker.total(logs) }
+    private var progress: Double { WaterTracker.progress(ml: ml, goal: goalMl) }
     private let water = Color(hex: 0x4FC3F7)
 
-    private var done: Bool { goalMl > 0 && ml >= goalMl }
+    private var done: Bool { WaterTracker.done(ml: ml, goal: goalMl) }
 
     var body: some View {
         VStack(spacing: 14) {
@@ -87,12 +87,7 @@ struct WaterCard: View {
     }
 
     private func add(_ amount: Double) {
-        let newMl = max(0, ml + amount)
-        if let log = logs.first {
-            log.ml = newMl
-        } else if newMl > 0 {
-            context.insert(WaterLog(day: day, ml: newMl))
-        }
+        let newMl = WaterTracker.add(amount: amount, into: logs, day: day, context: context)
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         if Calendar.current.isDateInToday(day) {
             if beerMeter {
