@@ -14,29 +14,17 @@ struct BeerView: View {
     private let defaultPalette = [Color(hex: 0xF2A900), Color(hex: 0xFFD54F), Color(hex: 0xC8741A)]
 
     private var today: Date { Calendar.current.startOfDay(for: Date()) }
-    private var todayLogs: [BeerLog] { allLogs.filter { $0.day == today } }
-    private var totalMl: Double { todayLogs.reduce(0) { $0 + $1.ml } }
-    private var bottles: Double { totalMl / 500.0 }
-    private var liters: Double { totalMl / 1000.0 }
-    private var totalKcal: Double { todayLogs.reduce(0) { $0 + $1.ml * 0.43 } }
-    private var alcoholGrams: Double { todayLogs.reduce(0) { $0 + $1.alcoholGrams } }
+    private var todayLogs: [BeerLog] { BeerTracker.today(allLogs, on: today) }
+    private var bottles: Double { BeerTracker.bottles(todayLogs) }
+    private var liters: Double { BeerTracker.liters(todayLogs) }
+    private var totalKcal: Double { BeerTracker.kcal(todayLogs) }
 
     private var promille: Double {
-        let r = (sexRaw == "female") ? 0.6 : 0.7
-        guard weightKg > 0 else { return 0 }
-        return max(0, alcoholGrams / (weightKg * r))
+        BeerTracker.promille(alcoholGrams: BeerTracker.alcoholGrams(todayLogs), weightKg: weightKg, sex: sexRaw)
     }
 
     private var streak: Int {
-        let days = Set(allLogs.map { $0.day })
-        var count = 0
-        var cursor = today
-        let cal = Calendar.current
-        while days.contains(cursor) {
-            count += 1
-            cursor = cal.date(byAdding: .day, value: -1, to: cursor) ?? cursor
-        }
-        return count
+        BeerTracker.streak(days: Set(allLogs.map { $0.day }), today: today)
     }
 
     var body: some View {
@@ -141,7 +129,7 @@ struct BeerView: View {
     }
 
     private func add(_ beer: Beer) {
-        context.insert(BeerLog(day: today, brand: beer.name, ml: 500, abv: beer.abv))
+        BeerTracker.add(beer, day: today, context: context)
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         let ripple = LavaRipple(color: beer.color, start: Date(),
                                 unitX: 0.5 + CGFloat.random(in: -0.16...0.16),
@@ -154,8 +142,7 @@ struct BeerView: View {
     }
 
     private func remove(_ beer: Beer) {
-        guard let log = todayLogs.first(where: { $0.brand == beer.name }) else { return }
-        context.delete(log)
+        guard let log = BeerTracker.remove(brand: beer.name, from: todayLogs, context: context) else { return }
         UINotificationFeedbackGenerator().notificationOccurred(.warning)
         let remaining = todayLogs.count - 1
         let last = BeerCatalog.find(todayLogs.first(where: { $0.id != log.id })?.brand ?? "")
