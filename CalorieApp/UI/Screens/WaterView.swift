@@ -51,7 +51,6 @@ struct WaterCard: View {
 
             HStack(spacing: 10) {
                 addButton(250)
-                addButton(500)
                 Button { add(-250) } label: {
                     Image(systemName: "arrow.uturn.backward")
                         .font(.subheadline.weight(.semibold))
