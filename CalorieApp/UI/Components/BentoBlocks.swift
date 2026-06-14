@@ -166,22 +166,6 @@ struct BentoGrid: View {
 
                 Button(role: .destructive) { remove(item) } label: { Label("Убрать блок", systemImage: "trash") }
             }
-            .draggable(item.id)
-            .dropDestination(for: String.self) { ids, _ in
-                guard let dropped = ids.first else { return false }
-                moveItem(dropped, before: item.id)
-                return true
-            }
-    }
-
-    private func moveItem(_ draggedId: String, before targetId: String) {
-        guard draggedId != targetId else { return }
-        var a = items
-        guard let from = a.firstIndex(where: { $0.id == draggedId }) else { return }
-        let moved = a.remove(at: from)
-        let insertAt = a.firstIndex(where: { $0.id == targetId }) ?? a.endIndex
-        a.insert(moved, at: insertAt)
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { raw = a.storage }
     }
 
     private func setSize(_ item: BentoItem, _ size: BentoSize) {

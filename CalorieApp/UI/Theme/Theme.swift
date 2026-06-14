@@ -30,8 +30,15 @@ private func ink(_ opacity: Double) -> Color {
 
 enum Theme {
 
-    static let acid = Color(lightHex: 0x5C9A00, darkHex: 0xCCFF00)
-    static let onAccent = Color(UIColor { $0.userInterfaceStyle == .dark ? .black : .white })
+    static let acidUIColor = UIColor { trait in
+        trait.userInterfaceStyle == .dark
+            ? UIColor(red: 0.80, green: 1.0, blue: 0.0, alpha: 1)
+            : UIColor(red: 0.36, green: 0.60, blue: 0.0, alpha: 1)
+    }
+    static let onAccentUIColor = UIColor { $0.userInterfaceStyle == .dark ? .black : .white }
+
+    static let acid = Color(acidUIColor)
+    static let onAccent = Color(onAccentUIColor)
 
     static let bgTop = Color(lightHex: 0xFFFFFF, darkHex: 0x171717)
     static let bgBottom = Color(lightHex: 0xECECEF, darkHex: 0x000000)
