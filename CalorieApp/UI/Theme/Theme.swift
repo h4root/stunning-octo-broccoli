@@ -248,14 +248,14 @@ struct GlassCard: ViewModifier {
                 .glassEffect(.regular, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .stroke(Color.white.opacity(strokeOpacity), lineWidth: 0.5)
+                        .stroke(Theme.textPrimary.opacity(strokeOpacity), lineWidth: 0.5)
                 )
         } else {
             content
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .stroke(Color.white.opacity(strokeOpacity), lineWidth: 1)
+                        .stroke(Theme.textPrimary.opacity(strokeOpacity), lineWidth: 1)
                 )
         }
     }

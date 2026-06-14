@@ -13,9 +13,9 @@ enum Fmt {
 
 enum MacroColor {
     static let kcal = Theme.acid
-    static let protein = Color.white.opacity(0.92)
-    static let fat = Color.white.opacity(0.60)
-    static let carbs = Color.white.opacity(0.38)
+    static let protein = Theme.textPrimary.opacity(0.92)
+    static let fat = Theme.textPrimary.opacity(0.55)
+    static let carbs = Theme.textPrimary.opacity(0.32)
 }
 
 struct ProgressRing: View {
@@ -26,7 +26,7 @@ struct ProgressRing: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(Color.white.opacity(0.08), lineWidth: lineWidth)
+                .stroke(Theme.textPrimary.opacity(0.08), lineWidth: lineWidth)
             Circle()
                 .trim(from: 0, to: min(progress, 1))
                 .stroke(color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
@@ -59,7 +59,7 @@ struct CalorieSummaryRing: View {
                 .liquidCircle()
 
             Circle()
-                .stroke(Color.white.opacity(0.07), lineWidth: 16)
+                .stroke(Theme.textPrimary.opacity(0.07), lineWidth: 16)
                 .padding(14)
             Circle()
                 .trim(from: 0, to: shown)
@@ -139,7 +139,7 @@ struct BigMetricRing: View {
                 .opacity(0.45)
 
             Circle()
-                .stroke(Color.white.opacity(0.08), lineWidth: 22)
+                .stroke(Theme.textPrimary.opacity(0.08), lineWidth: 22)
             Circle()
                 .trim(from: 0, to: min(progress, 1))
                 .stroke(
@@ -218,7 +218,7 @@ struct SemiCircleGauge: View {
             ZStack {
                 Circle()
                     .trim(from: 0, to: 0.5)
-                    .stroke(Color.white.opacity(0.08),
+                    .stroke(Theme.textPrimary.opacity(0.08),
                             style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                     .rotationEffect(.degrees(180))
 
@@ -292,7 +292,7 @@ struct MacroBar: View {
             }
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
-                    Capsule().fill(Color.white.opacity(0.10))
+                    Capsule().fill(Theme.textPrimary.opacity(0.10))
                     Capsule().fill(color)
                         .frame(width: max(6, geo.size.width * progress))
                 }
@@ -338,7 +338,7 @@ struct MacroBarWide: View {
             }
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
-                    Capsule().fill(Color.white.opacity(0.10))
+                    Capsule().fill(Theme.textPrimary.opacity(0.10))
                     Capsule()
                         .fill(LinearGradient(colors: [tint.opacity(0.7), tint],
                                              startPoint: .leading, endPoint: .trailing))

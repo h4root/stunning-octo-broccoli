@@ -39,7 +39,7 @@ struct WaterCard: View {
 
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
-                    Capsule().fill(Color.white.opacity(0.10))
+                    Capsule().fill(Theme.textPrimary.opacity(0.10))
                     Capsule()
                         .fill(done ? AnyShapeStyle(Theme.acid) : AnyShapeStyle(LinearGradient(colors: [water.opacity(0.55), water],
                                              startPoint: .leading, endPoint: .trailing)))
@@ -56,7 +56,7 @@ struct WaterCard: View {
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Theme.textSecondary)
                         .frame(width: 46, height: 40)
-                        .background(Color.white.opacity(0.06), in: Capsule())
+                        .background(Theme.textPrimary.opacity(0.06), in: Capsule())
                 }
                 .buttonStyle(.pressable)
                 .disabled(ml <= 0)

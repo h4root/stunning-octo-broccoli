@@ -43,7 +43,7 @@ struct CustomCounterCard: View {
             if hasGoal {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
-                        Capsule().fill(Color.white.opacity(0.10))
+                        Capsule().fill(Theme.textPrimary.opacity(0.10))
                         Capsule()
                             .fill(done ? AnyShapeStyle(Theme.acid) : AnyShapeStyle(Theme.textPrimary))
                             .frame(width: max(8, geo.size.width * progress))
@@ -70,7 +70,7 @@ struct CustomCounterCard: View {
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Theme.textSecondary)
                         .frame(width: 46, height: 38)
-                        .background(Color.white.opacity(0.06), in: Capsule())
+                        .background(Theme.textPrimary.opacity(0.06), in: Capsule())
                 }
                 .buttonStyle(.pressable)
                 .disabled(value <= 0)
@@ -140,8 +140,8 @@ struct CustomCounterBuilderSheet: View {
                                     Text(u)
                                         .font(.caption.weight(.semibold))
                                         .padding(.horizontal, 12).padding(.vertical, 6)
-                                        .background(unit == u ? Theme.acid : Color.white.opacity(0.08), in: Capsule())
-                                        .foregroundStyle(unit == u ? .black : Theme.textPrimary)
+                                        .background(unit == u ? Theme.acid : Theme.textPrimary.opacity(0.08), in: Capsule())
+                                        .foregroundStyle(unit == u ? Theme.onAccent : Theme.textPrimary)
                                 }
                                 .buttonStyle(.plain)
                             }

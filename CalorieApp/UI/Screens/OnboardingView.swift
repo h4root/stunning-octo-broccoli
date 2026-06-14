@@ -95,7 +95,7 @@ struct OnboardingView: View {
         HStack(spacing: 8) {
             ForEach(0...pages.count, id: \.self) { i in
                 Capsule()
-                    .fill(i == index ? Theme.accentPink : Color.white.opacity(0.2))
+                    .fill(i == index ? Theme.accentPink : Theme.textPrimary.opacity(0.2))
                     .frame(width: i == index ? 22 : 8, height: 8)
                     .animation(.spring(response: 0.4, dampingFraction: 0.7), value: index)
             }

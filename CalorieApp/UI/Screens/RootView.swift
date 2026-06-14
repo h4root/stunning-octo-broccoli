@@ -89,7 +89,7 @@ struct RootView: View {
 
     var body: some View {
         tabs
-        .tint(.white)
+        .tint(Theme.textPrimary)
         .onAppear { showOnboarding = !hasOnboarded }
         .onChange(of: beerMeter) { _, on in
             if on { WaterActivityManager.shared.end() }
