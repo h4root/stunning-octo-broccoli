@@ -313,7 +313,7 @@ struct BentoAddSheet: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
+        .appAppearance()
     }
 
     private func row(_ block: BentoBlock) -> some View {

@@ -45,7 +45,7 @@ struct CustomCounterCard: View {
                     ZStack(alignment: .leading) {
                         Capsule().fill(Color.white.opacity(0.10))
                         Capsule()
-                            .fill(done ? AnyShapeStyle(Theme.acid) : AnyShapeStyle(Color.white))
+                            .fill(done ? AnyShapeStyle(Theme.acid) : AnyShapeStyle(Theme.textPrimary))
                             .frame(width: max(8, geo.size.width * progress))
                             .shadow(color: done ? Theme.acid.opacity(0.7) : .clear, radius: 6)
                     }
@@ -58,7 +58,7 @@ struct CustomCounterCard: View {
                     Button { add(amt) } label: {
                         Text("+\(num(amt))")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.black)
+                            .foregroundStyle(Theme.onAccent)
                             .frame(maxWidth: .infinity)
                             .frame(height: 38)
                             .background(Theme.acid, in: Capsule())
@@ -193,7 +193,7 @@ struct CustomCounterBuilderSheet: View {
             }
             .onAppear(perform: load)
         }
-        .preferredColorScheme(.dark)
+        .appAppearance()
     }
 
     private func load() {

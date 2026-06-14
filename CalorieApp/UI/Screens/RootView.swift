@@ -246,7 +246,7 @@ private struct GoalPickerSheet: View {
         }
         .presentationDetents([.height(320)])
         .presentationBackground(.ultraThinMaterial)
-        .preferredColorScheme(.dark)
+        .appAppearance()
     }
 
     private func apply() {

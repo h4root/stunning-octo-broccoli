@@ -102,7 +102,7 @@ private struct GramsPickerSheet: View {
         }
         .presentationDetents([.height(300)])
         .presentationBackground(.ultraThinMaterial)
-        .preferredColorScheme(.dark)
+        .appAppearance()
     }
 }
 

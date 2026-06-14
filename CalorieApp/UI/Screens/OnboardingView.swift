@@ -50,7 +50,7 @@ struct OnboardingView: View {
                 button.padding(.horizontal, 24).padding(.bottom, 40)
             }
         }
-        .preferredColorScheme(.dark)
+        .appAppearance()
     }
 
     private var namePage: some View {

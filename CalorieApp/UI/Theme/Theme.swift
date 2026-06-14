@@ -11,47 +11,76 @@ extension Color {
             opacity: alpha
         )
     }
+
+    init(lightHex: UInt, darkHex: UInt) {
+        self = Color(UIColor { trait in
+            let hex = trait.userInterfaceStyle == .dark ? darkHex : lightHex
+            return UIColor(red: CGFloat((hex >> 16) & 0xFF) / 255,
+                           green: CGFloat((hex >> 8) & 0xFF) / 255,
+                           blue: CGFloat(hex & 0xFF) / 255, alpha: 1)
+        })
+    }
+}
+
+private func ink(_ opacity: Double) -> Color {
+    Color(UIColor { trait in
+        UIColor(white: trait.userInterfaceStyle == .dark ? 1 : 0, alpha: opacity)
+    })
 }
 
 enum Theme {
 
-    static let acid = Color(hex: 0xCCFF00)
+    static let acid = Color(lightHex: 0x5C9A00, darkHex: 0xCCFF00)
+    static let onAccent = Color(UIColor { $0.userInterfaceStyle == .dark ? .black : .white })
 
-    static let bgTop = Color(hex: 0x171717)
-    static let bgBottom = Color(hex: 0x000000)
+    static let bgTop = Color(lightHex: 0xFFFFFF, darkHex: 0x171717)
+    static let bgBottom = Color(lightHex: 0xECECEF, darkHex: 0x000000)
 
-    static let card = Color.white.opacity(0.05)
-    static let cardElevated = Color.white.opacity(0.08)
+    static let card = ink(0.05)
+    static let cardElevated = ink(0.08)
 
-    static let glassStroke = Color.white.opacity(0.14)
-    static let glassFill = Color.white.opacity(0.05)
+    static let glassStroke = ink(0.14)
+    static let glassFill = ink(0.05)
 
-    static let textPrimary = Color.white
-    static let textSecondary = Color.white.opacity(0.55)
-    static let textTertiary = Color.white.opacity(0.32)
+    static let textPrimary = ink(1)
+    static let textSecondary = ink(0.55)
+    static let textTertiary = ink(0.32)
 
     static let accentPink = acid
     static let accentPurple = acid
-    static let lime = Color.white.opacity(0.85)
-    static let blue = Color.white.opacity(0.85)
+    static let lime = ink(0.85)
+    static let blue = ink(0.85)
     static let amber = acid
-    static let green = Color.white.opacity(0.85)
+    static let green = ink(0.85)
 
     static let accentGradient = LinearGradient(
-        colors: [Color(hex: 0xDDFF66), Color(hex: 0xAEEA00)],
+        colors: [Color(lightHex: 0x6FB300, darkHex: 0xDDFF66), Color(lightHex: 0x4E8C00, darkHex: 0xAEEA00)],
         startPoint: .topLeading, endPoint: .bottomTrailing
     )
 
-    static let warmGlow = LinearGradient(
-        colors: [Color(hex: 0xDDFF66), Color(hex: 0xAEEA00)],
-        startPoint: .topLeading, endPoint: .bottomTrailing
-    )
+    static let warmGlow = accentGradient
 
     static let fire = acid
     static let fireGradient = LinearGradient(
-        colors: [Color(hex: 0xE6FF7A), Color(hex: 0xB6F000)],
+        colors: [Color(lightHex: 0x7AC400, darkHex: 0xE6FF7A), Color(lightHex: 0x4E8C00, darkHex: 0xB6F000)],
         startPoint: .topLeading, endPoint: .bottomTrailing
     )
+}
+
+enum AppAppearance: String {
+    case dark, light
+    var scheme: ColorScheme { self == .light ? .light : .dark }
+}
+
+struct AppearanceModifier: ViewModifier {
+    @AppStorage("appearance") private var raw = AppAppearance.dark.rawValue
+    func body(content: Content) -> some View {
+        content.preferredColorScheme((AppAppearance(rawValue: raw) ?? .dark).scheme)
+    }
+}
+
+extension View {
+    func appAppearance() -> some View { modifier(AppearanceModifier()) }
 }
 
 struct PressableButtonStyle: ButtonStyle {
@@ -75,7 +104,7 @@ struct AppBackground: View {
         ZStack {
             LinearGradient(colors: [Theme.bgTop, Theme.bgBottom],
                            startPoint: .top, endPoint: .bottom)
-            RadialGradient(colors: [Color.white.opacity(0.05), .clear],
+            RadialGradient(colors: [Theme.textPrimary.opacity(0.05), .clear],
                            center: .top, startRadius: 0, endRadius: 460)
         }
         .ignoresSafeArea()

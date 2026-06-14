@@ -34,6 +34,7 @@ struct ProfileView: View {
     @AppStorage("ai.model") private var aiModel = ""
     @AppStorage("fun.beerMeter") private var beerMeter = false
     @AppStorage("fun.beerGoal") private var beerGoal = 5.0
+    @AppStorage("appearance") private var appearanceRaw = AppAppearance.dark.rawValue
 
     @State private var editing: ProfileField?
     @State private var importingWeight = false
@@ -52,6 +53,7 @@ struct ProfileView: View {
         NavigationStack {
             Form {
                 aboutSection
+                appearanceSection
                 bodySection
                 activitySection
                 goalSection
@@ -300,6 +302,19 @@ struct ProfileView: View {
         .listRowBackground(rowBackground)
     }
 
+    private var appearanceSection: some View {
+        Section {
+            Picker("Тема", selection: $appearanceRaw) {
+                Text("Тёмная").tag(AppAppearance.dark.rawValue)
+                Text("Светлая").tag(AppAppearance.light.rawValue)
+            }
+            .pickerStyle(.segmented)
+        } header: {
+            sectionHeader("Внешний вид")
+        }
+        .listRowBackground(rowBackground)
+    }
+
     private var funSection: some View {
         Section {
             Toggle(isOn: $beerMeter.animation(.spring(response: 0.4, dampingFraction: 0.8))) {
@@ -378,7 +393,7 @@ private struct MetricPickerSheet: View {
         }
         .presentationDetents([.height(300)])
         .presentationBackground(.ultraThinMaterial)
-        .preferredColorScheme(.dark)
+        .appAppearance()
     }
 }
 

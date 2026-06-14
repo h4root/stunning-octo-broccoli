@@ -6,7 +6,7 @@ struct CalorieAppApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
-                .preferredColorScheme(.dark)
+                .appAppearance()
                 .tint(Theme.accentPink)
         }
         .modelContainer(for: [FoodEntry.self, SavedFood.self, WaterLog.self, BeerLog.self,

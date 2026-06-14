@@ -187,7 +187,7 @@ struct SemiCircleGauge: View {
 
     @State private var flicker = false
 
-    private let over = Color.white
+    private let over = Theme.textPrimary
 
     private var progress: Double { goal > 0 ? min(consumed / goal, 1) : 0 }
     private var remaining: Double { max(goal - consumed, 0) }
@@ -378,10 +378,10 @@ struct DateStrip: View {
             VStack(spacing: 4) {
                 Text(dayNum(day))
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(isSelected ? Color.black : Theme.textPrimary)
+                    .foregroundStyle(isSelected ? Theme.onAccent : Theme.textPrimary)
                 Text(weekday(day))
                     .font(.caption2)
-                    .foregroundStyle(isSelected ? Color.black.opacity(0.7) : Theme.textSecondary)
+                    .foregroundStyle(isSelected ? Theme.onAccent.opacity(0.7) : Theme.textSecondary)
             }
             .frame(width: 38, height: 52)
             .background {

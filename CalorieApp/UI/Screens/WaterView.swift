@@ -16,7 +16,7 @@ struct WaterCard: View {
 
     private var ml: Double { WaterTracker.total(logs) }
     private var progress: Double { WaterTracker.progress(ml: ml, goal: goalMl) }
-    private let water = Color.white
+    private let water = Theme.textPrimary
 
     private var done: Bool { WaterTracker.done(ml: ml, goal: goalMl) }
 
@@ -63,7 +63,7 @@ struct WaterCard: View {
                 Button { add(250) } label: {
                     Image(systemName: "plus")
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundStyle(.black)
+                        .foregroundStyle(Theme.onAccent)
                         .frame(width: 56, height: 40)
                         .background(Theme.acid, in: Capsule())
                 }
