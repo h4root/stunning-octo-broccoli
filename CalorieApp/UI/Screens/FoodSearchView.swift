@@ -51,7 +51,7 @@ struct FoodSearchView: View {
             }
             .scrollIndicators(.hidden)
             .scrollContentBackground(.hidden)
-            .background { AppBackground() }
+            .background(Theme.flatBackground.ignoresSafeArea())
             .navigationTitle("Добавить продукт")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -78,7 +78,7 @@ struct FoodSearchView: View {
             }
         }
         .padding(.horizontal, 16).padding(.vertical, 14)
-        .glassCard(cornerRadius: 16)
+        .solidCard(cornerRadius: 16)
     }
 
     private var quickPicker: some View {
@@ -203,7 +203,7 @@ struct FoodSearchView: View {
 
     private func group<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         VStack(spacing: 0) { content() }
-            .glassCard(cornerRadius: 18)
+            .solidCard(cornerRadius: 18)
     }
 
     private func empty(_ text: String) -> some View {
@@ -212,7 +212,7 @@ struct FoodSearchView: View {
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 32).padding(.horizontal, 16)
-            .glassCard(cornerRadius: 18)
+            .solidCard(cornerRadius: 18)
     }
 
     private func info(_ text: String) -> some View {

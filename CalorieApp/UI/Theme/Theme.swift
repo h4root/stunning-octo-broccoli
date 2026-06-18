@@ -42,6 +42,8 @@ enum Theme {
 
     static let bgTop = Color(lightHex: 0xFFFFFF, darkHex: 0x171717)
     static let bgBottom = Color(lightHex: 0xECECEF, darkHex: 0x000000)
+    static let flatBackground = Color(lightHex: 0xEFEFF2, darkHex: 0x121214)
+    static let surface = Color(lightHex: 0xFFFFFF, darkHex: 0x1E1E20)
 
     static let card = ink(0.05)
     static let cardElevated = ink(0.08)
@@ -270,6 +272,15 @@ struct GlassCard: ViewModifier {
 extension View {
     func glassCard(cornerRadius: CGFloat = 24, strokeOpacity: Double = 0.10) -> some View {
         modifier(GlassCard(cornerRadius: cornerRadius, strokeOpacity: strokeOpacity))
+    }
+
+    func solidCard(cornerRadius: CGFloat = 18) -> some View {
+        self
+            .background(Theme.surface, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .stroke(Theme.textPrimary.opacity(0.10), lineWidth: 1)
+            )
     }
 }
 
