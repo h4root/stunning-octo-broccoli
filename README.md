@@ -1,12 +1,15 @@
-# CalorieApp
+# CalorieApp — Legacy (iOS 16)
 
-Нативный трекер калорий и БЖУ для iOS — чистый, тёмный, создавался под себя, но может пригодится и кому-то еще.
+Сборка нативного трекера калорий и БЖУ под **старые iOS** — для устройств, которые не обновляются выше iOS 16 (например iPhone 11 на iOS 16). Тот же дизайн и логика, что и в основной версии, но без зависимостей, требующих iOS 17.
 
-SwiftUI + SwiftData, iOS 17+.
+SwiftUI, iOS 16.0+.
 
 ![Swift](https://img.shields.io/badge/Swift-5.9-orange)
 ![SwiftUI](https://img.shields.io/badge/SwiftUI-blue)
-![iOS](https://img.shields.io/badge/iOS-17%2B-black)
+![iOS](https://img.shields.io/badge/iOS-16%2B-black)
+![branch](https://img.shields.io/badge/branch-legacy--ios-yellow)
+
+> Основная (современная) версия — в ветке [`main`](../../tree/main): iOS 17+, SwiftData, Live Activities.
 
 ## Скриншоты
 
@@ -18,19 +21,24 @@ SwiftUI + SwiftData, iOS 17+.
 
 ## Функционал
 
-- **Дашборд** — полукруглый спидометр калорий с закрытием дня, перебором и стриком, бенто-блоки (пока в работе) и несколько свайп-страниц.
+- **Дашборд** — полукруглый спидометр калорий с закрытием дня, перебором и стриком, бенто-блоки.
 - **Приёмы пищи** — по датам, с заметками; быстрый ввод и редактирование.
 - **Поиск продуктов** — встроенная база классических продуктов, штрихкоды (VisionKit), Open Food Facts, поддержка ИИ и API ключей разных сервисов.
 - **Жидкости** — учёт в мл, отдельная карточка воды.
 - **HealthKit** — шаги, вес, активная энергия, тренировки.
 - **ИИ-ассистент** — расчёт КБЖУ по названию; провайдеры OpenAI / Anthropic / Google / Groq и др. + кастомный URL, ключ хранится только на устройстве.
-- **Live Activities + виджет** — вода на экране блокировки и в Dynamic Island.
-- **Пивометр 🍺** — полезный раздел для отпуска: живой интерактивный фон, большой каталог пивоварен (еще расширяется), свой пивометр и Live Activity с кнопкой «ещё одну».
+- **Пивометр 🍺** — шуточный раздел: живой интерактивный фон, большой каталог пивоварен, свой спидометр.
+
+## Отличия от основной версии
+
+- **Хранение данных** — лёгкий Codable-стор (JSON в Application Support) вместо SwiftData (его нет до iOS 17). Без внешних зависимостей.
+- **Live Activities и виджет отключены** — требуют iOS 16.1+/17. На iOS 16.0 недоступны.
+- iOS 17-API (`onChange` с двумя аргументами, `@Bindable`, `symbolEffect`, `contentMargins`, `presentationBackground`) заменены или закрыты `#available`.
 
 ## Стек
 
-Swift · SwiftUI · SwiftData · ActivityKit · WidgetKit · VisionKit · HealthKit
+Swift · SwiftUI · Codable (JSON) · VisionKit · HealthKit
 
 ## Сборка
 
-Открыть `CalorieApp.xcodeproj` в Xcode, выбрать свою команду подписи, собрать на устройство с iOS 17+.
+Открыть `CalorieApp.xcodeproj` в Xcode, выбрать свою команду подписи, собрать на устройство с iOS 16.0+.
