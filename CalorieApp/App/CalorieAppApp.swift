@@ -1,8 +1,9 @@
 import SwiftUI
-import SwiftData
 
 @main
 struct CalorieAppApp: App {
+    @StateObject private var store = Store()
+
     init() {
         let seg = UISegmentedControl.appearance()
         seg.selectedSegmentTintColor = Theme.acidUIColor
@@ -13,10 +14,9 @@ struct CalorieAppApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
+                .environmentObject(store)
                 .appAppearance()
                 .tint(Theme.accentPink)
         }
-        .modelContainer(for: [FoodEntry.self, SavedFood.self, WaterLog.self, BeerLog.self,
-                              CustomCounter.self, CustomCounterLog.self])
     }
 }

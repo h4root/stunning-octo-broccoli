@@ -1,5 +1,4 @@
 import Foundation
-import SwiftData
 
 enum BeerTracker {
     static let bottleMl: Double = 500
@@ -29,16 +28,14 @@ enum BeerTracker {
     }
 
     @discardableResult
-    static func add(_ beer: Beer, day: Date, context: ModelContext) -> BeerLog {
+    static func add(_ beer: Beer, day: Date, store: Store) -> BeerLog {
         let log = BeerLog(day: day, brand: beer.name, ml: bottleMl, abv: beer.abv)
-        context.insert(log)
+        store.addBeer(log)
         return log
     }
 
     @discardableResult
-    static func remove(brand: String, from logs: [BeerLog], context: ModelContext) -> BeerLog? {
-        guard let log = logs.first(where: { $0.brand == brand }) else { return nil }
-        context.delete(log)
-        return log
+    static func remove(brand: String, day: Date, store: Store) -> Bool {
+        store.removeLatestBeer(brand: brand, day: day)
     }
 }

@@ -1,9 +1,8 @@
 import SwiftUI
-import SwiftData
 
 struct BeerView: View {
-    @Environment(\.modelContext) private var context
-    @Query(sort: [SortDescriptor(\BeerLog.createdAt, order: .reverse)]) private var allLogs: [BeerLog]
+    @EnvironmentObject private var store: Store
+    private var allLogs: [BeerLog] { store.beerLogs.sorted { $0.createdAt > $1.createdAt } }
     @AppStorage("profile.weight") private var weightKg = 70.0
     @AppStorage("profile.sex") private var sexRaw = "male"
     @AppStorage("fun.beerGoal") private var goalBottles = 5.0
@@ -53,7 +52,7 @@ struct BeerView: View {
         .background { beerBackground }
         .navigationTitle("Пивометр")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear { BeerActivityManager.shared.reconcileAndSync(context) }
+        .onAppear { BeerActivityManager.shared.reconcileAndSync(store) }
     }
 
     private var palette: [Color] {
@@ -129,7 +128,7 @@ struct BeerView: View {
     }
 
     private func add(_ beer: Beer) {
-        BeerTracker.add(beer, day: today, context: context)
+        BeerTracker.add(beer, day: today, store: store)
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         let ripple = LavaRipple(color: beer.color, start: Date(),
                                 unitX: 0.5 + CGFloat.random(in: -0.16...0.16),
@@ -142,11 +141,11 @@ struct BeerView: View {
     }
 
     private func remove(_ beer: Beer) {
-        guard let log = BeerTracker.remove(brand: beer.name, from: todayLogs, context: context) else { return }
+        guard BeerTracker.remove(brand: beer.name, day: today, store: store) else { return }
         UINotificationFeedbackGenerator().notificationOccurred(.warning)
-        let remaining = todayLogs.count - 1
-        let last = BeerCatalog.find(todayLogs.first(where: { $0.id != log.id })?.brand ?? "")
-        BeerActivityManager.shared.sync(count: max(remaining, 0), lastBeer: last)
+        let remaining = todayLogs.filter { $0.brand == beer.name }
+        let last = BeerCatalog.find(remaining.first?.brand ?? todayLogs.first?.brand ?? "")
+        BeerActivityManager.shared.sync(count: todayLogs.count, lastBeer: last)
     }
 }
 

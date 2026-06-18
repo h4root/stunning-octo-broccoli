@@ -1,5 +1,4 @@
 import Foundation
-import SwiftData
 
 enum Meal: String, CaseIterable, Identifiable, Codable {
     case breakfast, lunch, dinner, snack
@@ -25,25 +24,19 @@ enum Meal: String, CaseIterable, Identifiable, Codable {
     }
 }
 
-@Model
-final class FoodEntry {
-    var id: UUID = UUID()
-
-    var createdAt: Date = Date()
-
-    var day: Date = Calendar.current.startOfDay(for: Date())
-    var mealRaw: String = Meal.breakfast.rawValue
-
-    var name: String = ""
+struct FoodEntry: Identifiable, Codable, Hashable {
+    var id = UUID()
+    var createdAt = Date()
+    var day: Date
+    var mealRaw: String
+    var name: String
     var brand: String?
     var barcode: String?
-
-    var grams: Double = 100
-
-    var kcalPer100: Double = 0
-    var proteinPer100: Double = 0
-    var fatPer100: Double = 0
-    var carbsPer100: Double = 0
+    var grams: Double
+    var kcalPer100: Double
+    var proteinPer100: Double
+    var fatPer100: Double
+    var carbsPer100: Double
     var note: String = ""
     var isLiquid: Bool = false
 
@@ -59,8 +52,6 @@ final class FoodEntry {
          day: Date = Date(),
          note: String = "",
          isLiquid: Bool = false) {
-        self.id = UUID()
-        self.createdAt = Date()
         self.day = Calendar.current.startOfDay(for: day)
         self.mealRaw = meal.rawValue
         self.name = name
@@ -89,10 +80,10 @@ final class FoodEntry {
     var carbs: Double { carbsPer100 * factor }
 }
 
-@Model
-final class WaterLog {
-    var day: Date = Calendar.current.startOfDay(for: Date())
-    var ml: Double = 0
+struct WaterLog: Identifiable, Codable, Hashable {
+    var id = UUID()
+    var day: Date
+    var ml: Double
 
     init(day: Date, ml: Double) {
         self.day = Calendar.current.startOfDay(for: day)
@@ -100,18 +91,15 @@ final class WaterLog {
     }
 }
 
-@Model
-final class BeerLog {
-    var id: UUID = UUID()
-    var createdAt: Date = Date()
-    var day: Date = Calendar.current.startOfDay(for: Date())
-    var brand: String = ""
+struct BeerLog: Identifiable, Codable, Hashable {
+    var id = UUID()
+    var createdAt = Date()
+    var day: Date
+    var brand: String
     var ml: Double = 500
     var abv: Double = 4.5
 
     init(day: Date, brand: String, ml: Double = 500, abv: Double = 4.5) {
-        self.id = UUID()
-        self.createdAt = Date()
         self.day = Calendar.current.startOfDay(for: day)
         self.brand = brand
         self.ml = ml
@@ -122,32 +110,29 @@ final class BeerLog {
     var alcoholGrams: Double { ml * (abv / 100.0) * 0.789 }
 }
 
-@Model
-final class CustomCounter {
-    var id: UUID = UUID()
-    var name: String = ""
+struct CustomCounter: Identifiable, Codable, Hashable {
+    var id = UUID()
+    var name: String
     var unit: String = "шт"
     var amounts: [Double] = [1]
     var goal: Double = 0
-    var createdAt: Date = Date()
+    var createdAt = Date()
     var sortIndex: Int = 0
 
     init(name: String, unit: String, amounts: [Double], goal: Double = 0, sortIndex: Int = 0) {
-        self.id = UUID()
         self.name = name
         self.unit = unit
         self.amounts = amounts
         self.goal = goal
-        self.createdAt = Date()
         self.sortIndex = sortIndex
     }
 }
 
-@Model
-final class CustomCounterLog {
-    var counterID: UUID = UUID()
-    var day: Date = Calendar.current.startOfDay(for: Date())
-    var value: Double = 0
+struct CustomCounterLog: Identifiable, Codable, Hashable {
+    var id = UUID()
+    var counterID: UUID
+    var day: Date
+    var value: Double
 
     init(counterID: UUID, day: Date, value: Double) {
         self.counterID = counterID
@@ -156,20 +141,17 @@ final class CustomCounterLog {
     }
 }
 
-@Model
-final class SavedFood {
-    @Attribute(.unique) var id: UUID = UUID()
-    var name: String = ""
+struct SavedFood: Identifiable, Codable, Hashable {
+    var id = UUID()
+    var name: String
     var brand: String?
     var barcode: String?
-
-    var kcalPer100: Double = 0
-    var proteinPer100: Double = 0
-    var fatPer100: Double = 0
-    var carbsPer100: Double = 0
-
+    var kcalPer100: Double
+    var proteinPer100: Double
+    var fatPer100: Double
+    var carbsPer100: Double
     var defaultGrams: Double = 100
-    var lastUsed: Date = Date()
+    var lastUsed = Date()
     var useCount: Int = 0
     var isFavorite: Bool = false
     var isLiquid: Bool = false
@@ -183,7 +165,6 @@ final class SavedFood {
          carbsPer100: Double,
          defaultGrams: Double = 100,
          isLiquid: Bool = false) {
-        self.id = UUID()
         self.name = name
         self.brand = brand
         self.barcode = barcode
@@ -192,8 +173,6 @@ final class SavedFood {
         self.fatPer100 = fatPer100
         self.carbsPer100 = carbsPer100
         self.defaultGrams = defaultGrams
-        self.lastUsed = Date()
-        self.useCount = 0
         self.isLiquid = isLiquid
     }
 }

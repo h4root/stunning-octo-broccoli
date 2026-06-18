@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftData
 
 private func num(_ v: Double) -> String {
     v == v.rounded() ? String(format: "%.0f", v) : String(v)
@@ -8,16 +7,17 @@ private func num(_ v: Double) -> String {
 struct CustomCounterCard: View {
     let counter: CustomCounter
     let day: Date
-    @Environment(\.modelContext) private var context
-    @Query private var logs: [CustomCounterLog]
+    @EnvironmentObject private var store: Store
     @State private var editing = false
 
     init(counter: CustomCounter, day: Date) {
         self.counter = counter
         self.day = day
-        let id = counter.id
+    }
+
+    private var logs: [CustomCounterLog] {
         let start = Calendar.current.startOfDay(for: day)
-        _logs = Query(filter: #Predicate<CustomCounterLog> { $0.counterID == id && $0.day == start })
+        return store.customCounterLogs.filter { $0.counterID == counter.id && $0.day == start }
     }
 
     private var value: Double { CustomCounterStore.value(logs) }
@@ -87,14 +87,14 @@ struct CustomCounterCard: View {
         .contextMenu {
             Button { editing = true } label: { Label("Изменить", systemImage: "pencil") }
             Button(role: .destructive) {
-                CustomCounterStore.delete(counter, context: context)
+                CustomCounterStore.delete(counter, store: store)
             } label: { Label("Удалить блок", systemImage: "trash") }
         }
         .sheet(isPresented: $editing) { CustomCounterBuilderSheet(editing: counter) }
     }
 
     private func add(_ amount: Double) {
-        _ = CustomCounterStore.add(amount: amount, counterID: counter.id, into: logs, day: day, context: context)
+        _ = CustomCounterStore.add(amount: amount, counterID: counter.id, into: logs, day: day, store: store)
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 }
@@ -102,9 +102,8 @@ struct CustomCounterCard: View {
 struct CustomCounterBuilderSheet: View {
     var editing: CustomCounter?
 
-    @Environment(\.modelContext) private var context
+    @EnvironmentObject private var store: Store
     @Environment(\.dismiss) private var dismiss
-    @Query private var allCounters: [CustomCounter]
 
     @State private var name = ""
     @State private var unit = ""
@@ -209,14 +208,15 @@ struct CustomCounterBuilderSheet: View {
         let trimmedUnit = unit.trimmingCharacters(in: .whitespaces)
         let u = trimmedUnit.isEmpty ? "шт" : trimmedUnit
         let trimmedName = name.trimmingCharacters(in: .whitespaces)
-        if let c = editing {
-            c.name = trimmedName
-            c.unit = u
-            c.amounts = parsedAmounts
-            c.goal = g
+        if var updated = editing {
+            updated.name = trimmedName
+            updated.unit = u
+            updated.amounts = parsedAmounts
+            updated.goal = g
+            store.updateCounter(updated)
         } else {
-            let idx = (allCounters.map { $0.sortIndex }.max() ?? -1) + 1
-            context.insert(CustomCounter(name: trimmedName, unit: u, amounts: parsedAmounts, goal: g, sortIndex: idx))
+            let idx = (store.customCounters.map { $0.sortIndex }.max() ?? -1) + 1
+            store.addCounter(CustomCounter(name: trimmedName, unit: u, amounts: parsedAmounts, goal: g, sortIndex: idx))
         }
         dismiss()
     }

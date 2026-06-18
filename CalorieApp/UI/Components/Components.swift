@@ -258,7 +258,7 @@ struct SemiCircleGauge: View {
         .frame(width: 240, height: 240)
         .padding(.bottom, -86)
         .animation(.easeOut(duration: 0.55), value: consumed)
-        .onChange(of: burning) { _, on in updateFlicker(on) }
+        .onChange(of: burning) { on in updateFlicker(on) }
         .onAppear { updateFlicker(burning) }
     }
 

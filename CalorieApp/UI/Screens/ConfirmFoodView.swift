@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftData
 
 struct NutritionPreview: View {
     var info: FoodInfo
@@ -101,7 +100,7 @@ private struct GramsPickerSheet: View {
             }
         }
         .presentationDetents([.height(300)])
-        .presentationBackground(.ultraThinMaterial)
+        .sheetMaterialBackground()
         .appAppearance()
     }
 }
@@ -111,7 +110,7 @@ struct ConfirmFoodView: View {
     var initialMeal: Meal = Meal.suggestedForNow()
     var day: Date = Date()
 
-    @Environment(\.modelContext) private var context
+    @EnvironmentObject private var store: Store
     @Environment(\.dismiss) private var dismiss
 
     @State private var grams: Double
@@ -191,15 +190,27 @@ struct ConfirmFoodView: View {
     }
 
     private func add() {
-        FoodLog.add(info, meal: meal, grams: grams, note: note, day: day, context: context)
+        FoodLog.add(info, meal: meal, grams: grams, note: note, day: day, store: store)
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         dismiss()
     }
 }
 
 struct EditEntryView: View {
-    @Bindable var entry: FoodEntry
+    let entry: FoodEntry
+    @EnvironmentObject private var store: Store
     @Environment(\.dismiss) private var dismiss
+
+    @State private var meal: Meal
+    @State private var grams: Double
+    @State private var note: String
+
+    init(entry: FoodEntry) {
+        self.entry = entry
+        _meal = State(initialValue: entry.meal)
+        _grams = State(initialValue: entry.grams)
+        _note = State(initialValue: entry.note)
+    }
 
     private var info: FoodInfo {
         FoodInfo(name: entry.name, brand: entry.brand, barcode: entry.barcode,
@@ -219,7 +230,7 @@ struct EditEntryView: View {
                 .listRowBackground(Theme.glassFill)
 
                 Section {
-                    Picker("Приём пищи", selection: $entry.meal) {
+                    Picker("Приём пищи", selection: $meal) {
                         ForEach(Meal.allCases) { m in Text(m.title).tag(m) }
                     }
                     .pickerStyle(.segmented)
@@ -227,18 +238,18 @@ struct EditEntryView: View {
                 .listRowBackground(Theme.glassFill)
 
                 Section {
-                    GramsRow(grams: $entry.grams, unit: entry.unit)
+                    GramsRow(grams: $grams, unit: entry.unit)
                 } header: { sectionHeader("Количество") }
                 .listRowBackground(Theme.glassFill)
 
                 Section {
-                    NutritionPreview(info: info, grams: entry.grams)
+                    NutritionPreview(info: info, grams: grams)
                         .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16))
                 } header: { sectionHeader("На вашу порцию") }
                 .listRowBackground(Color.clear)
 
                 Section {
-                    TextField("Например: без сахара", text: $entry.note, axis: .vertical)
+                    TextField("Например: без сахара", text: $note, axis: .vertical)
                         .lineLimit(1...3)
                         .foregroundStyle(Theme.textPrimary)
                 } header: { sectionHeader("Заметка") }
@@ -249,10 +260,19 @@ struct EditEntryView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Готово") { dismiss() }.fontWeight(.semibold)
+                    Button("Готово") { save() }.fontWeight(.semibold)
                 }
             }
         }
+    }
+
+    private func save() {
+        var updated = entry
+        updated.meal = meal
+        updated.grams = grams
+        updated.note = note
+        store.updateFood(updated)
+        dismiss()
     }
 }
 

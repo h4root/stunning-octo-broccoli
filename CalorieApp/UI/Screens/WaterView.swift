@@ -1,17 +1,18 @@
 import SwiftUI
-import SwiftData
 
 struct WaterCard: View {
     let day: Date
-    @Environment(\.modelContext) private var context
-    @Query private var logs: [WaterLog]
+    @EnvironmentObject private var store: Store
     @AppStorage("goal.water") private var goalMl: Double = 2000
     @AppStorage("fun.beerMeter") private var beerMeter = false
 
     init(day: Date) {
         self.day = day
+    }
+
+    private var logs: [WaterLog] {
         let start = Calendar.current.startOfDay(for: day)
-        _logs = Query(filter: #Predicate<WaterLog> { $0.day == start })
+        return store.waterLogs.filter { $0.day == start }
     }
 
     private var ml: Double { WaterTracker.total(logs) }
@@ -26,8 +27,6 @@ struct WaterCard: View {
                 Image(systemName: done ? "checkmark.circle.fill" : "drop.fill")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(water)
-                    .symbolEffect(.bounce, value: ml)
-                    .contentTransition(.symbolEffect(.replace))
                 Text("Вода").font(.headline).foregroundStyle(Theme.textPrimary)
                 Spacer()
                 Text("\(Fmt.kcal(ml)) / \(Fmt.kcal(goalMl)) мл")
@@ -81,7 +80,7 @@ struct WaterCard: View {
     }
 
     private func add(_ amount: Double) {
-        let newMl = WaterTracker.add(amount: amount, into: logs, day: day, context: context)
+        let newMl = WaterTracker.add(amount: amount, into: logs, day: day, store: store)
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         if Calendar.current.isDateInToday(day) {
             if beerMeter {

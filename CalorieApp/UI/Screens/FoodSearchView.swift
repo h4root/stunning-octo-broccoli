@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftData
 
 private enum QuickTab: String, CaseIterable, Identifiable {
     case base = "Базовые"
@@ -13,9 +12,9 @@ struct FoodSearchView: View {
     var onPick: (FoodInfo) -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var context
-    @Query(sort: [SortDescriptor(\SavedFood.lastUsed, order: .reverse)]) private var savedFoods: [SavedFood]
-    @Query(sort: [SortDescriptor(\FoodEntry.createdAt, order: .reverse)]) private var allEntries: [FoodEntry]
+    @EnvironmentObject private var store: Store
+    private var savedFoods: [SavedFood] { store.savedFoods.sorted { $0.lastUsed > $1.lastUsed } }
+    private var allEntries: [FoodEntry] { store.foodEntries.sorted { $0.createdAt > $1.createdAt } }
 
     @State private var searchText = ""
     @State private var quickTab: QuickTab = .base
@@ -229,7 +228,7 @@ struct FoodSearchView: View {
             .buttonStyle(.plain)
 
             Button {
-                food.isFavorite.toggle()
+                store.toggleFavorite(food)
             } label: {
                 Image(systemName: food.isFavorite ? "star.fill" : "star")
                     .foregroundStyle(food.isFavorite ? Theme.amber : Theme.textTertiary)

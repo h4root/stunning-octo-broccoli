@@ -28,18 +28,15 @@ struct DashboardView: View {
             selectedDay = Calendar.current.startOfDay(for: Date())
             storeAddDay(selectedDay)
         }
-        .onChange(of: selectedDay) { _, d in storeAddDay(d) }
-        .onChange(of: goHome) { _, _ in selectedDay = Calendar.current.startOfDay(for: Date()) }
+        .onChange(of: selectedDay) { d in storeAddDay(d) }
+        .onChange(of: goHome) { _ in selectedDay = Calendar.current.startOfDay(for: Date()) }
     }
 }
 
 private struct DashboardDayContent: View {
     let day: Date
     var onEditGoal: () -> Void
-    @Query private var entries: [FoodEntry]
-    @Query(sort: \FoodEntry.day, order: .reverse) private var allEntries: [FoodEntry]
-    @Query(sort: \CustomCounter.sortIndex) private var customCounters: [CustomCounter]
-    @Environment(\.modelContext) private var context
+    @EnvironmentObject private var store: Store
 
     @AppStorage("goal.kcal") private var goalKcal: Double = GoalsDefaults.kcal
     @AppStorage("goal.protein") private var goalProtein: Double = GoalsDefaults.protein
@@ -50,14 +47,13 @@ private struct DashboardDayContent: View {
 
     @State private var editingEntry: FoodEntry?
 
-    init(day: Date, onEditGoal: @escaping () -> Void) {
-        self.day = day
-        self.onEditGoal = onEditGoal
+    private var entries: [FoodEntry] {
         let start = Calendar.current.startOfDay(for: day)
-        _entries = Query(
-            filter: #Predicate<FoodEntry> { $0.day == start },
-            sort: \FoodEntry.createdAt, order: .reverse
-        )
+        return store.foodEntries.filter { $0.day == start }.sorted { $0.createdAt > $1.createdAt }
+    }
+    private var allEntries: [FoodEntry] { store.foodEntries }
+    private var customCounters: [CustomCounter] {
+        store.customCounters.sorted { $0.sortIndex < $1.sortIndex }
     }
 
     private var totals: DayTotals { DayTotals(entries: entries) }
@@ -160,7 +156,7 @@ private struct DashboardDayContent: View {
                     .contextMenu {
                         Button { editingEntry = entry } label: { Label("Изменить", systemImage: "pencil") }
                         Button(role: .destructive) {
-                            withAnimation { FoodLog.delete(entry, context: context) }
+                            withAnimation { FoodLog.delete(entry, store: store) }
                         } label: { Label("Удалить", systemImage: "trash") }
                     }
                     .transition(.move(edge: .top).combined(with: .opacity))

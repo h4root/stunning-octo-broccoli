@@ -96,6 +96,24 @@ struct AppearanceModifier: ViewModifier {
 
 extension View {
     func appAppearance() -> some View { modifier(AppearanceModifier()) }
+
+    @ViewBuilder
+    func sheetMaterialBackground() -> some View {
+        if #available(iOS 16.4, *) {
+            self.presentationBackground(.ultraThinMaterial)
+        } else {
+            self
+        }
+    }
+
+    @ViewBuilder
+    func bottomScrollInset(_ amount: CGFloat) -> some View {
+        if #available(iOS 17.0, *) {
+            self.contentMargins(.bottom, amount, for: .scrollContent)
+        } else {
+            self
+        }
+    }
 }
 
 struct PressableButtonStyle: ButtonStyle {
@@ -238,7 +256,7 @@ struct LavaLampBackground: View {
         .onAppear {
             if toPalette.isEmpty { toPalette = colors; fromPalette = colors }
         }
-        .onChange(of: colors) { _, new in
+        .onChange(of: colors) { new in
             fromPalette = toPalette.isEmpty ? new : toPalette
             toPalette = new
             transitionStart = Date()

@@ -7,7 +7,7 @@ struct RootView: View {
     @AppStorage("fun.beerMeter") private var beerMeter = false
     @AppStorage("profile.name") private var name = ""
     @Environment(\.scenePhase) private var scenePhase
-    @Environment(\.modelContext) private var context
+    @EnvironmentObject private var store: Store
     @State private var showOnboarding = false
     @State private var tab: MainTab = .dashboard
 
@@ -91,13 +91,13 @@ struct RootView: View {
         tabs
         .tint(Theme.textPrimary)
         .onAppear { showOnboarding = !hasOnboarded }
-        .onChange(of: beerMeter) { _, on in
+        .onChange(of: beerMeter) { on in
             if on { WaterActivityManager.shared.end() }
             else { BeerActivityManager.shared.end() }
         }
-        .onChange(of: scenePhase) { _, phase in
+        .onChange(of: scenePhase) { phase in
             if phase == .active && beerMeter {
-                BeerActivityManager.shared.reconcileAndSync(context)
+                BeerActivityManager.shared.reconcileAndSync(store)
             }
         }
         .fullScreenCover(isPresented: $showOnboarding) {
@@ -245,7 +245,7 @@ private struct GoalPickerSheet: View {
             }
         }
         .presentationDetents([.height(320)])
-        .presentationBackground(.ultraThinMaterial)
+        .sheetMaterialBackground()
         .appAppearance()
     }
 
@@ -268,6 +268,6 @@ private struct GoalPickerSheet: View {
 
 #Preview {
     RootView()
-        .modelContainer(for: [FoodEntry.self, SavedFood.self], inMemory: true)
+        .environmentObject(Store())
         .preferredColorScheme(.dark)
 }

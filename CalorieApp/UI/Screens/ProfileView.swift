@@ -64,18 +64,18 @@ struct ProfileView: View {
                 funSection
             }
             .darkForm()
-            .contentMargins(.bottom, 110, for: .scrollContent)
+            .bottomScrollInset(110)
             .navigationTitle("Профиль")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .sheet(item: $editing) { MetricPickerSheet(field: $0) }
-            .onChange(of: sexRaw) { _, _ in recalc() }
-            .onChange(of: age) { _, _ in recalc() }
-            .onChange(of: heightCm) { _, _ in recalc() }
-            .onChange(of: weightKg) { _, _ in recalc() }
-            .onChange(of: activityRaw) { _, _ in recalc() }
-            .onChange(of: goalTypeRaw) { _, _ in recalc() }
-            .onChange(of: autoGoals) { _, on in if on { recalc() } }
+            .onChange(of: sexRaw) { _ in recalc() }
+            .onChange(of: age) { _ in recalc() }
+            .onChange(of: heightCm) { _ in recalc() }
+            .onChange(of: weightKg) { _ in recalc() }
+            .onChange(of: activityRaw) { _ in recalc() }
+            .onChange(of: goalTypeRaw) { _ in recalc() }
+            .onChange(of: autoGoals) { on in if on { recalc() } }
             .onAppear { recalc() }
         }
     }
@@ -393,7 +393,7 @@ private struct MetricPickerSheet: View {
             }
         }
         .presentationDetents([.height(300)])
-        .presentationBackground(.ultraThinMaterial)
+        .sheetMaterialBackground()
         .appAppearance()
     }
 }
