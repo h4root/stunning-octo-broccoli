@@ -10,9 +10,11 @@ SwiftUI + SwiftData, iOS 17+.
 
 ## Скриншоты
 
-| Дашборд | Поиск продуктов | Старт |
+| Главная | Активность | Профиль |
 |:---:|:---:|:---:|
-| <img src="docs/dashboard.png" width="240"> | <img src="docs/search.png" width="240"> | <img src="docs/onboarding.png" width="240"> |
+| <img src="docs/home.png" width="240"> | <img src="docs/activity.png" width="240"> | <img src="docs/profile.png" width="240"> |
+
+<p align="center"><img src="docs/profile-scroll.gif" width="260" alt="Прокрутка профиля"></p>
 
 ## Функционал
 
