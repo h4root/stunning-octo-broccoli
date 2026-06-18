@@ -305,6 +305,7 @@ struct ProfileView: View {
     private var appearanceSection: some View {
         Section {
             Picker("Тема", selection: $appearanceRaw) {
+                Text("Авто").tag(AppAppearance.auto.rawValue)
                 Text("Тёмная").tag(AppAppearance.dark.rawValue)
                 Text("Светлая").tag(AppAppearance.light.rawValue)
             }

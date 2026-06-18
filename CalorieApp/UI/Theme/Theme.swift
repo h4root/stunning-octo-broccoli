@@ -75,8 +75,14 @@ enum Theme {
 }
 
 enum AppAppearance: String {
-    case dark, light
-    var scheme: ColorScheme { self == .light ? .light : .dark }
+    case auto, dark, light
+    var scheme: ColorScheme? {
+        switch self {
+        case .auto:  return nil
+        case .dark:  return .dark
+        case .light: return .light
+        }
+    }
 }
 
 struct AppearanceModifier: ViewModifier {
