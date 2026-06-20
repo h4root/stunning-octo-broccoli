@@ -8,21 +8,24 @@ struct ClassicFood: Identifiable {
     let protein: Double
     let fat: Double
     let carbs: Double
+    let saturated: Double?
     let isLiquid: Bool
 
-    init(_ name: String, _ nameEn: String, _ kcal: Double, _ protein: Double, _ fat: Double, _ carbs: Double, liquid: Bool = false) {
+    init(_ name: String, _ nameEn: String, _ kcal: Double, _ protein: Double, _ fat: Double, _ carbs: Double, saturated: Double? = nil, liquid: Bool = false) {
         self.name = name
         self.nameEn = nameEn
         self.kcal = kcal
         self.protein = protein
         self.fat = fat
         self.carbs = carbs
+        self.saturated = saturated
         self.isLiquid = liquid
     }
 
     func toFoodInfo() -> FoodInfo {
         FoodInfo(name: name, brand: nil, barcode: nil,
                  kcalPer100: kcal, proteinPer100: protein, fatPer100: fat, carbsPer100: carbs,
+                 saturatedFatPer100: saturated,
                  defaultGrams: isLiquid ? 250 : 100, isLiquid: isLiquid)
     }
 }
@@ -58,7 +61,7 @@ enum ClassicFoodsDB {
         ClassicFood("Манго", "Mango", 60, 0.8, 0.4, 15),
         ClassicFood("Ананас", "Pineapple", 50, 0.5, 0.1, 13),
         ClassicFood("Арбуз", "Watermelon", 30, 0.6, 0.2, 8),
-        ClassicFood("Авокадо", "Avocado", 160, 2, 15, 9),
+        ClassicFood("Авокадо", "Avocado", 160, 2, 15, 9, saturated: 2.1),
         ClassicFood("Лимон", "Lemon", 29, 1.1, 0.3, 9),
         ClassicFood("Персик", "Peach", 39, 0.9, 0.3, 10),
         ClassicFood("Черника", "Blueberry", 57, 0.7, 0.3, 14),
@@ -88,50 +91,50 @@ enum ClassicFoodsDB {
         ClassicFood("Гречка сухая", "Buckwheat dry", 343, 13, 3.4, 72),
         ClassicFood("Рис сухой", "Rice dry", 360, 7, 1, 78),
         ClassicFood("Овсяные хлопья сухие", "Rolled oats", 379, 13, 6.5, 67),
-        ClassicFood("Картофель фри", "French fries", 312, 3.4, 15, 41),
+        ClassicFood("Картофель фри", "French fries", 312, 3.4, 15, 41, saturated: 2.3),
 
         // Мясо, птица, рыба
-        ClassicFood("Куриная грудка", "Chicken breast", 165, 31, 3.6, 0),
-        ClassicFood("Куриное бедро", "Chicken thigh", 209, 26, 11, 0),
-        ClassicFood("Говядина", "Beef", 250, 26, 15, 0),
-        ClassicFood("Свинина", "Pork", 242, 27, 14, 0),
-        ClassicFood("Индейка", "Turkey", 189, 29, 7, 0),
-        ClassicFood("Фарш говяжий", "Ground beef", 254, 26, 16, 0),
-        ClassicFood("Лосось", "Salmon", 208, 20, 13, 0),
+        ClassicFood("Куриная грудка", "Chicken breast", 165, 31, 3.6, 0, saturated: 1.0),
+        ClassicFood("Куриное бедро", "Chicken thigh", 209, 26, 11, 0, saturated: 3.0),
+        ClassicFood("Говядина", "Beef", 250, 26, 15, 0, saturated: 6),
+        ClassicFood("Свинина", "Pork", 242, 27, 14, 0, saturated: 5),
+        ClassicFood("Индейка", "Turkey", 189, 29, 7, 0, saturated: 2),
+        ClassicFood("Фарш говяжий", "Ground beef", 254, 26, 16, 0, saturated: 6.6),
+        ClassicFood("Лосось", "Salmon", 208, 20, 13, 0, saturated: 3.1),
         ClassicFood("Тунец консервированный", "Canned tuna", 116, 26, 1, 0),
         ClassicFood("Креветки", "Shrimp", 99, 24, 0.3, 0.2),
         ClassicFood("Треска", "Cod", 82, 18, 0.7, 0),
-        ClassicFood("Сосиски", "Sausages", 280, 12, 25, 2),
-        ClassicFood("Бекон", "Bacon", 541, 37, 42, 1.4),
+        ClassicFood("Сосиски", "Sausages", 280, 12, 25, 2, saturated: 9),
+        ClassicFood("Бекон", "Bacon", 541, 37, 42, 1.4, saturated: 14),
 
         // Молочка, яйца
-        ClassicFood("Яйцо куриное", "Egg", 155, 13, 11, 1.1),
-        ClassicFood("Молоко 2.5%", "Milk", 52, 2.9, 2.5, 4.8, liquid: true),
-        ClassicFood("Творог 5%", "Cottage cheese 5%", 121, 17, 5, 3),
-        ClassicFood("Творог 9%", "Cottage cheese 9%", 159, 16, 9, 2),
-        ClassicFood("Сыр", "Cheese", 364, 25, 29, 1.3),
-        ClassicFood("Йогурт натуральный", "Plain yogurt", 60, 5, 3.2, 4.7),
-        ClassicFood("Йогурт греческий", "Greek yogurt", 59, 10, 0.4, 3.6),
-        ClassicFood("Сметана 20%", "Sour cream", 206, 2.8, 20, 3.2),
-        ClassicFood("Масло сливочное", "Butter", 717, 0.9, 81, 0.1),
-        ClassicFood("Кефир 1%", "Kefir", 40, 3, 1, 4, liquid: true),
+        ClassicFood("Яйцо куриное", "Egg", 155, 13, 11, 1.1, saturated: 3.3),
+        ClassicFood("Молоко 2.5%", "Milk", 52, 2.9, 2.5, 4.8, saturated: 1.5, liquid: true),
+        ClassicFood("Творог 5%", "Cottage cheese 5%", 121, 17, 5, 3, saturated: 3),
+        ClassicFood("Творог 9%", "Cottage cheese 9%", 159, 16, 9, 2, saturated: 5.5),
+        ClassicFood("Сыр", "Cheese", 364, 25, 29, 1.3, saturated: 18),
+        ClassicFood("Йогурт натуральный", "Plain yogurt", 60, 5, 3.2, 4.7, saturated: 2),
+        ClassicFood("Йогурт греческий", "Greek yogurt", 59, 10, 0.4, 3.6, saturated: 0.1),
+        ClassicFood("Сметана 20%", "Sour cream", 206, 2.8, 20, 3.2, saturated: 12),
+        ClassicFood("Масло сливочное", "Butter", 717, 0.9, 81, 0.1, saturated: 51),
+        ClassicFood("Кефир 1%", "Kefir", 40, 3, 1, 4, saturated: 0.7, liquid: true),
 
         // Орехи, бобовые
-        ClassicFood("Миндаль", "Almonds", 579, 21, 50, 22),
-        ClassicFood("Грецкий орех", "Walnuts", 654, 15, 65, 14),
-        ClassicFood("Арахис", "Peanuts", 567, 26, 49, 16),
-        ClassicFood("Арахисовая паста", "Peanut butter", 588, 25, 50, 20),
+        ClassicFood("Миндаль", "Almonds", 579, 21, 50, 22, saturated: 3.8),
+        ClassicFood("Грецкий орех", "Walnuts", 654, 15, 65, 14, saturated: 6.1),
+        ClassicFood("Арахис", "Peanuts", 567, 26, 49, 16, saturated: 6.8),
+        ClassicFood("Арахисовая паста", "Peanut butter", 588, 25, 50, 20, saturated: 10),
         ClassicFood("Фасоль варёная", "Boiled beans", 127, 9, 0.5, 23),
         ClassicFood("Чечевица варёная", "Boiled lentils", 116, 9, 0.4, 20),
         ClassicFood("Нут варёный", "Chickpeas", 164, 9, 2.6, 27),
 
         // Жиры, сладкое, прочее
-        ClassicFood("Оливковое масло", "Olive oil", 884, 0, 100, 0, liquid: true),
-        ClassicFood("Подсолнечное масло", "Sunflower oil", 884, 0, 100, 0, liquid: true),
+        ClassicFood("Оливковое масло", "Olive oil", 884, 0, 100, 0, saturated: 14, liquid: true),
+        ClassicFood("Подсолнечное масло", "Sunflower oil", 884, 0, 100, 0, saturated: 11, liquid: true),
         ClassicFood("Мёд", "Honey", 304, 0.3, 0, 82),
         ClassicFood("Сахар", "Sugar", 387, 0, 0, 100),
-        ClassicFood("Шоколад тёмный", "Dark chocolate", 546, 4.9, 31, 61),
-        ClassicFood("Шоколад молочный", "Milk chocolate", 535, 7.6, 30, 59),
+        ClassicFood("Шоколад тёмный", "Dark chocolate", 546, 4.9, 31, 61, saturated: 19),
+        ClassicFood("Шоколад молочный", "Milk chocolate", 535, 7.6, 30, 59, saturated: 18),
 
         // Напитки
         ClassicFood("Кола", "Cola", 42, 0, 0, 10.6, liquid: true),

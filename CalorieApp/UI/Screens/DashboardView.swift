@@ -47,6 +47,7 @@ private struct DashboardDayContent: View {
     @AppStorage("goal.carbs") private var goalCarbs: Double = GoalsDefaults.carbs
     @AppStorage("goal.auto") private var autoGoals = true
     @AppStorage("bento.blocks.0") private var bentoRaw = ""
+    @AppStorage("nutrition.fatDetail") private var fatDetail = false
 
     @State private var editingEntry: FoodEntry?
 
@@ -69,6 +70,7 @@ private struct DashboardDayContent: View {
             goalRow
             gaugeCard
             macroMosaic
+            if fatDetail { fatBreakdownCard }
             WaterCard(day: day)
             ForEach(customCounters) { CustomCounterCard(counter: $0, day: day) }
             if !bentoRaw.isEmpty {
@@ -131,6 +133,52 @@ private struct DashboardDayContent: View {
             .padding(.vertical, 16)
             .frame(maxWidth: .infinity)
             .glassCard(cornerRadius: 22)
+    }
+
+    private var saturatedLimit: Double { max(goalKcal * 0.10 / 9, 0) }
+
+    private var fatBreakdownCard: some View {
+        let sat = totals.saturatedFat
+        let unsat = totals.unsaturatedFat
+        let limit = saturatedLimit
+        let over = limit > 0 && sat > limit
+        let progress = limit > 0 ? min(sat / limit, 1) : 0
+        return VStack(spacing: 12) {
+            HStack {
+                Text("Жиры").font(.subheadline.weight(.semibold)).foregroundStyle(Theme.textPrimary)
+                Spacer()
+                if over {
+                    Text("выше нормы").font(.caption).foregroundStyle(Theme.textSecondary)
+                }
+            }
+            VStack(spacing: 6) {
+                HStack {
+                    Text("Насыщенные").font(.caption).foregroundStyle(Theme.textSecondary)
+                    Spacer()
+                    Text("\(Fmt.g(sat)) / \(Fmt.g(limit)) г")
+                        .font(.caption).monospacedDigit().foregroundStyle(Theme.textSecondary)
+                }
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(Theme.textPrimary.opacity(0.10))
+                        Capsule()
+                            .fill(over ? AnyShapeStyle(Theme.textSecondary) : AnyShapeStyle(Theme.acid))
+                            .frame(width: max(6, geo.size.width * progress))
+                    }
+                }
+                .frame(height: 7)
+            }
+            HStack {
+                Text("Ненасыщенные").font(.caption).foregroundStyle(Theme.textSecondary)
+                Spacer()
+                Text("\(Fmt.g(unsat)) г")
+                    .font(.caption).monospacedDigit().foregroundStyle(Theme.textSecondary)
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity)
+        .glassCard(cornerRadius: 22)
+        .animation(.easeOut(duration: 0.4), value: sat)
     }
 
     private var mealsSection: some View {

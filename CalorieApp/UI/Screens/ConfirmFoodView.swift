@@ -113,6 +113,7 @@ struct ConfirmFoodView: View {
 
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
+    @AppStorage("nutrition.fatDetail") private var fatDetail = false
 
     @State private var grams: Double
     @State private var meal: Meal
@@ -172,6 +173,7 @@ struct ConfirmFoodView: View {
                     nutrientRow("Калории", "\(Fmt.kcal(info.kcalPer100)) ккал")
                     nutrientRow("Белки", "\(Fmt.g(info.proteinPer100)) г")
                     nutrientRow("Жиры", "\(Fmt.g(info.fatPer100)) г")
+                    if fatDetail { fatBreakdownRows(saturatedPer100: info.saturatedFatPer100, fatPer100: info.fatPer100) }
                     nutrientRow("Углеводы", "\(Fmt.g(info.carbsPer100)) г")
                 } header: { sectionHeader("На 100 г") }
                 .listRowBackground(Theme.glassFill)
@@ -200,11 +202,13 @@ struct ConfirmFoodView: View {
 struct EditEntryView: View {
     @Bindable var entry: FoodEntry
     @Environment(\.dismiss) private var dismiss
+    @AppStorage("nutrition.fatDetail") private var fatDetail = false
 
     private var info: FoodInfo {
         FoodInfo(name: entry.name, brand: entry.brand, barcode: entry.barcode,
                  kcalPer100: entry.kcalPer100, proteinPer100: entry.proteinPer100,
-                 fatPer100: entry.fatPer100, carbsPer100: entry.carbsPer100)
+                 fatPer100: entry.fatPer100, carbsPer100: entry.carbsPer100,
+                 saturatedFatPer100: entry.saturatedFatPer100)
     }
 
     var body: some View {
@@ -237,6 +241,14 @@ struct EditEntryView: View {
                 } header: { sectionHeader("На вашу порцию") }
                 .listRowBackground(Color.clear)
 
+                if fatDetail, entry.saturatedFatPer100 != nil {
+                    Section {
+                        nutrientSubRow("Насыщенные", "\(Fmt.g(entry.saturatedFat ?? 0)) г")
+                        nutrientSubRow("Ненасыщенные", "\(Fmt.g(entry.unsaturatedFat ?? 0)) г")
+                    } header: { sectionHeader("Жиры в порции") }
+                    .listRowBackground(Theme.glassFill)
+                }
+
                 Section {
                     TextField("Например: без сахара", text: $entry.note, axis: .vertical)
                         .lineLimit(1...3)
@@ -265,6 +277,22 @@ func nutrientRow(_ title: String, _ value: String) -> some View {
         Text(title).foregroundStyle(Theme.textPrimary)
         Spacer()
         Text(value).foregroundStyle(Theme.textSecondary)
+    }
+}
+
+private func nutrientSubRow(_ title: String, _ value: String) -> some View {
+    HStack {
+        Text(title).font(.subheadline).foregroundStyle(Theme.textSecondary)
+        Spacer()
+        Text(value).font(.subheadline).foregroundStyle(Theme.textTertiary)
+    }
+}
+
+@ViewBuilder
+func fatBreakdownRows(saturatedPer100: Double?, fatPer100: Double) -> some View {
+    if let sat = saturatedPer100 {
+        nutrientSubRow("в т.ч. насыщенные", "\(Fmt.g(sat)) г")
+        nutrientSubRow("ненасыщенные", "\(Fmt.g(max(fatPer100 - sat, 0))) г")
     }
 }
 

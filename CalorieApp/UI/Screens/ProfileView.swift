@@ -35,6 +35,7 @@ struct ProfileView: View {
     @AppStorage("fun.beerMeter") private var beerMeter = false
     @AppStorage("fun.beerGoal") private var beerGoal = 5.0
     @AppStorage("appearance") private var appearanceRaw = AppAppearance.dark.rawValue
+    @AppStorage("nutrition.fatDetail") private var fatDetail = false
 
     @State private var editing: ProfileField?
     @State private var importingWeight = false
@@ -58,6 +59,7 @@ struct ProfileView: View {
                 activitySection
                 goalSection
                 targetsSection
+                nutritionSection
                 aiSection
                 healthBottomSection
                 resetSection
@@ -213,6 +215,22 @@ struct ProfileView: View {
                  ? "Считается по формуле Mifflin–St Jeor с учётом активности и цели. Выключите тумблер, чтобы задать вручную."
                  : "Ручной режим. Включите тумблер для авто-расчёта по параметрам тела.")
             .foregroundStyle(Theme.textTertiary)
+        }
+        .listRowBackground(rowBackground)
+    }
+
+    private var nutritionSection: some View {
+        Section {
+            Toggle(isOn: $fatDetail) {
+                Label("Насыщенные жиры", systemImage: "chart.pie.fill")
+                    .foregroundStyle(Theme.textPrimary)
+            }
+            .tint(Theme.accentPink)
+        } header: {
+            sectionHeader("Питание")
+        } footer: {
+            Text("Показывать насыщенные и ненасыщенные жиры при добавлении продуктов и на дашборде.")
+                .foregroundStyle(Theme.textTertiary)
         }
         .listRowBackground(rowBackground)
     }

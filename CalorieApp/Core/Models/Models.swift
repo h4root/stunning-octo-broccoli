@@ -44,6 +44,7 @@ final class FoodEntry {
     var proteinPer100: Double = 0
     var fatPer100: Double = 0
     var carbsPer100: Double = 0
+    var saturatedFatPer100: Double?
     var note: String = ""
     var isLiquid: Bool = false
 
@@ -55,6 +56,7 @@ final class FoodEntry {
          proteinPer100: Double,
          fatPer100: Double,
          carbsPer100: Double,
+         saturatedFatPer100: Double? = nil,
          meal: Meal,
          day: Date = Date(),
          note: String = "",
@@ -71,6 +73,7 @@ final class FoodEntry {
         self.proteinPer100 = proteinPer100
         self.fatPer100 = fatPer100
         self.carbsPer100 = carbsPer100
+        self.saturatedFatPer100 = saturatedFatPer100
         self.note = note
         self.isLiquid = isLiquid
     }
@@ -87,6 +90,8 @@ final class FoodEntry {
     var protein: Double { proteinPer100 * factor }
     var fat: Double { fatPer100 * factor }
     var carbs: Double { carbsPer100 * factor }
+    var saturatedFat: Double? { saturatedFatPer100.map { $0 * factor } }
+    var unsaturatedFat: Double? { saturatedFatPer100.map { max(fat - $0 * factor, 0) } }
 }
 
 @Model
@@ -167,6 +172,7 @@ final class SavedFood {
     var proteinPer100: Double = 0
     var fatPer100: Double = 0
     var carbsPer100: Double = 0
+    var saturatedFatPer100: Double?
 
     var defaultGrams: Double = 100
     var lastUsed: Date = Date()
@@ -181,6 +187,7 @@ final class SavedFood {
          proteinPer100: Double,
          fatPer100: Double,
          carbsPer100: Double,
+         saturatedFatPer100: Double? = nil,
          defaultGrams: Double = 100,
          isLiquid: Bool = false) {
         self.id = UUID()
@@ -191,6 +198,7 @@ final class SavedFood {
         self.proteinPer100 = proteinPer100
         self.fatPer100 = fatPer100
         self.carbsPer100 = carbsPer100
+        self.saturatedFatPer100 = saturatedFatPer100
         self.defaultGrams = defaultGrams
         self.lastUsed = Date()
         self.useCount = 0
@@ -207,6 +215,7 @@ struct FoodInfo: Identifiable, Equatable, Codable {
     var proteinPer100: Double
     var fatPer100: Double
     var carbsPer100: Double
+    var saturatedFatPer100: Double?
     var defaultGrams: Double = 100
     var isLiquid: Bool = false
 
@@ -217,6 +226,7 @@ struct FoodInfo: Identifiable, Equatable, Codable {
          proteinPer100: Double,
          fatPer100: Double,
          carbsPer100: Double,
+         saturatedFatPer100: Double? = nil,
          defaultGrams: Double = 100,
          isLiquid: Bool = false) {
         self.name = name
@@ -226,6 +236,7 @@ struct FoodInfo: Identifiable, Equatable, Codable {
         self.proteinPer100 = proteinPer100
         self.fatPer100 = fatPer100
         self.carbsPer100 = carbsPer100
+        self.saturatedFatPer100 = saturatedFatPer100
         self.defaultGrams = defaultGrams
         self.isLiquid = isLiquid
     }
@@ -238,6 +249,7 @@ struct FoodInfo: Identifiable, Equatable, Codable {
         self.proteinPer100 = saved.proteinPer100
         self.fatPer100 = saved.fatPer100
         self.carbsPer100 = saved.carbsPer100
+        self.saturatedFatPer100 = saved.saturatedFatPer100
         self.defaultGrams = saved.defaultGrams
         self.isLiquid = saved.isLiquid
     }

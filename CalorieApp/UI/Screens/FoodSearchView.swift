@@ -244,6 +244,7 @@ struct FoodSearchView: View {
             pick(FoodInfo(name: entry.name, brand: entry.brand, barcode: entry.barcode,
                           kcalPer100: entry.kcalPer100, proteinPer100: entry.proteinPer100,
                           fatPer100: entry.fatPer100, carbsPer100: entry.carbsPer100,
+                          saturatedFatPer100: entry.saturatedFatPer100,
                           defaultGrams: entry.grams, isLiquid: entry.isLiquid))
         } label: {
             HStack {

@@ -8,6 +8,7 @@ enum FoodLog {
             name: info.name, brand: info.brand, barcode: info.barcode, grams: grams,
             kcalPer100: info.kcalPer100, proteinPer100: info.proteinPer100,
             fatPer100: info.fatPer100, carbsPer100: info.carbsPer100,
+            saturatedFatPer100: info.saturatedFatPer100,
             meal: meal, day: day, note: note.trimmingCharacters(in: .whitespacesAndNewlines),
             isLiquid: info.isLiquid
         )
@@ -31,12 +32,14 @@ enum FoodLog {
             existing.proteinPer100 = info.proteinPer100
             existing.fatPer100 = info.fatPer100
             existing.carbsPer100 = info.carbsPer100
+            existing.saturatedFatPer100 = info.saturatedFatPer100
             existing.isLiquid = info.isLiquid
         } else {
             let saved = SavedFood(
                 name: info.name, brand: info.brand, barcode: info.barcode,
                 kcalPer100: info.kcalPer100, proteinPer100: info.proteinPer100,
                 fatPer100: info.fatPer100, carbsPer100: info.carbsPer100,
+                saturatedFatPer100: info.saturatedFatPer100,
                 defaultGrams: grams, isLiquid: info.isLiquid
             )
             saved.useCount = 1

@@ -19,6 +19,7 @@ struct DayTotals {
     var protein: Double = 0
     var fat: Double = 0
     var carbs: Double = 0
+    var saturatedFat: Double = 0
 
     init() {}
 
@@ -28,6 +29,9 @@ struct DayTotals {
             protein += e.protein
             fat += e.fat
             carbs += e.carbs
+            saturatedFat += e.saturatedFat ?? 0
         }
     }
+
+    var unsaturatedFat: Double { max(fat - saturatedFat, 0) }
 }

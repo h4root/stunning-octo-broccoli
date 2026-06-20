@@ -144,6 +144,7 @@ private struct OFFProduct: Decodable {
             proteinPer100: n.proteins100 ?? 0,
             fatPer100: n.fat100 ?? 0,
             carbsPer100: n.carbs100 ?? 0,
+            saturatedFatPer100: n.satFat100,
             defaultGrams: grams
         )
     }
@@ -168,12 +169,14 @@ private struct OFFNutriments: Decodable {
     let proteins100: Double?
     let fat100: Double?
     let carbs100: Double?
+    let satFat100: Double?
 
     enum CodingKeys: String, CodingKey {
         case kcal100 = "energy-kcal_100g"
         case proteins100 = "proteins_100g"
         case fat100 = "fat_100g"
         case carbs100 = "carbohydrates_100g"
+        case satFat100 = "saturated-fat_100g"
     }
 
     init(from decoder: Decoder) throws {
@@ -182,6 +185,7 @@ private struct OFFNutriments: Decodable {
         proteins100 = Self.double(c, .proteins100)
         fat100 = Self.double(c, .fat100)
         carbs100 = Self.double(c, .carbs100)
+        satFat100 = Self.double(c, .satFat100)
     }
 
     private static func double(_ c: KeyedDecodingContainer<CodingKeys>, _ key: CodingKeys) -> Double? {

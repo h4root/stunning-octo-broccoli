@@ -106,7 +106,8 @@ struct AIService {
     Найди или оцени пищевую ценность НА 100 г (для напитков и жидкостей — на 100 мл). \
     Если знаешь данные с упаковки или сайта производителя/ритейлера — используй их. \
     Ответь СТРОГО одним JSON-объектом без пояснений и markdown:
-    {"name": "краткое название", "kcal": число, "protein": число, "fat": число, "carbs": число, "isLiquid": true/false}
+    {"name": "краткое название", "kcal": число, "protein": число, "fat": число, "carbs": число, "saturatedFat": число или null, "isLiquid": true/false}
+    Поле saturatedFat — насыщенные жиры на 100 г; если не знаешь, поставь null.
     """
 
     func nutrition(for query: String) async throws -> FoodInfo {
@@ -206,6 +207,13 @@ struct AIService {
             if let s = obj[k] as? String { return Double(s.replacingOccurrences(of: ",", with: ".")) ?? 0 }
             return 0
         }
+        func optNum(_ k: String) -> Double? {
+            if obj[k] == nil || obj[k] is NSNull { return nil }
+            if let d = obj[k] as? Double { return d }
+            if let i = obj[k] as? Int { return Double(i) }
+            if let s = obj[k] as? String { return Double(s.replacingOccurrences(of: ",", with: ".")) }
+            return nil
+        }
         let name = (obj["name"] as? String)?.trimmingCharacters(in: .whitespaces)
         let liquid = (obj["isLiquid"] as? Bool) ?? false
         let kcal = num("kcal")
@@ -213,6 +221,7 @@ struct AIService {
         return FoodInfo(
             name: (name?.isEmpty == false ? name! : fallbackName),
             kcalPer100: kcal, proteinPer100: num("protein"), fatPer100: num("fat"), carbsPer100: num("carbs"),
+            saturatedFatPer100: optNum("saturatedFat") ?? optNum("saturated_fat"),
             defaultGrams: liquid ? 250 : 100, isLiquid: liquid
         )
     }
