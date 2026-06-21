@@ -368,7 +368,7 @@ struct ProfileView: View {
     private var signingSection: some View {
         if let exp = SigningInfo.provisioningExpiration {
             Section {
-                TimelineView(.periodic(from: .now, by: 60)) { _ in
+                TimelineView(.periodic(from: .now, by: 1)) { _ in
                     signingRow(exp)
                 }
             } header: {
@@ -388,6 +388,7 @@ struct ProfileView: View {
         let days = total / 86400
         let hours = (total % 86400) / 3600
         let minutes = (total % 3600) / 60
+        let seconds = total % 60
         let warn = expired || remaining < 2 * 86400
 
         let f = DateFormatter()
@@ -399,7 +400,7 @@ struct ProfileView: View {
                 .font(.system(size: 18))
                 .foregroundStyle(warn ? Theme.accentPink : Theme.textSecondary)
             VStack(alignment: .leading, spacing: 2) {
-                Text(expired ? "Подпись истекла" : "Осталось \(days) д \(hours) ч \(minutes) мин")
+                Text(expired ? "Подпись истекла" : "Осталось \(days) д \(hours) ч \(minutes) м \(seconds) с")
                     .foregroundStyle(Theme.textPrimary)
                     .monospacedDigit()
                 Text("до \(f.string(from: exp))")

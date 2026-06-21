@@ -4,7 +4,7 @@ enum SigningInfo {
     static var provisioningExpiration: Date? {
         guard let url = Bundle.main.url(forResource: "embedded", withExtension: "mobileprovision"),
               let data = try? Data(contentsOf: url),
-              let raw = String(data: data, encoding: .ascii),
+              let raw = String(data: data, encoding: .isoLatin1),
               let start = raw.range(of: "<?xml"),
               let end = raw.range(of: "</plist>") else { return nil }
         let plistString = String(raw[start.lowerBound..<end.upperBound])
