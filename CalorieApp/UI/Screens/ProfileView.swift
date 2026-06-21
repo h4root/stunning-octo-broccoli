@@ -64,6 +64,7 @@ struct ProfileView: View {
                 healthBottomSection
                 resetSection
                 funSection
+                signingSection
             }
             .darkForm()
             .contentMargins(.bottom, 110, for: .scrollContent)
@@ -361,6 +362,52 @@ struct ProfileView: View {
                 .foregroundStyle(Theme.textTertiary)
         }
         .listRowBackground(rowBackground)
+    }
+
+    @ViewBuilder
+    private var signingSection: some View {
+        if let exp = SigningInfo.provisioningExpiration {
+            Section {
+                TimelineView(.periodic(from: .now, by: 60)) { _ in
+                    signingRow(exp)
+                }
+            } header: {
+                sectionHeader("Срок подписи")
+            } footer: {
+                Text("Бесплатная подпись живёт 7 дней. После этого приложение перестанет запускаться — пересоберите с Mac.")
+                    .foregroundStyle(Theme.textTertiary)
+            }
+            .listRowBackground(rowBackground)
+        }
+    }
+
+    private func signingRow(_ exp: Date) -> some View {
+        let remaining = exp.timeIntervalSince(Date())
+        let expired = remaining <= 0
+        let total = Int(max(remaining, 0))
+        let days = total / 86400
+        let hours = (total % 86400) / 3600
+        let minutes = (total % 3600) / 60
+        let warn = expired || remaining < 2 * 86400
+
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "ru_RU")
+        f.dateFormat = "d MMMM, HH:mm"
+
+        return HStack(spacing: 12) {
+            Image(systemName: expired ? "exclamationmark.triangle.fill" : "clock.fill")
+                .font(.system(size: 18))
+                .foregroundStyle(warn ? Theme.accentPink : Theme.textSecondary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(expired ? "Подпись истекла" : "Осталось \(days) д \(hours) ч \(minutes) мин")
+                    .foregroundStyle(Theme.textPrimary)
+                    .monospacedDigit()
+                Text("до \(f.string(from: exp))")
+                    .font(.caption)
+                    .foregroundStyle(Theme.textSecondary)
+            }
+            Spacer()
+        }
     }
 
     private func recalc() {
